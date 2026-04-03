@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Smoke Log">
+    <meta name="theme-color" content="#1a1a2e">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>Smoke Log - Zigaretten Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg: #1a1a2e;
+            --surface: #16213e;
+            --surface2: #0f3460;
+            --accent: #e94560;
+            --accent-light: #ff6b81;
+            --text: #eaeaea;
+            --text-dim: #8a8a9a;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --safe-top: env(safe-area-inset-top, 20px);
+            --safe-bottom: env(safe-area-inset-bottom, 20px);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            padding: calc(var(--safe-top) + 12px) 20px 12px;
+            background: var(--surface);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .header-date {
+            font-size: 13px;
+            color: var(--text-dim);
+        }
+
+        /* Navigation */
+        .nav {
+            display: flex;
+            background: var(--surface);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 0 12px;
+        }
+
+        .nav button {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 12px 8px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .nav button.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        /* Sections */
+        .section {
+            display: none;
+            padding: 20px;
+            padding-bottom: calc(var(--safe-bottom) + 100px);
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Today Section */
+        .today-count {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .today-count .number {
+            font-size: 96px;
+            font-weight: 800;
+            line-height: 1;
+            color: var(--accent);
+            transition: transform 0.15s;
+        }
+
+        .today-count .number.bump {
+            transform: scale(1.1);
+        }
+
+        .today-count .label {
+            font-size: 16px;
+            color: var(--text-dim);
+            margin-top: 8px;
+        }
+
+        .goal-bar {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            height: 8px;
+            margin: 0 20px 8px;
+            overflow: hidden;
+        }
+
+        .goal-bar-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.4s ease, background 0.4s;
+            background: var(--success);
+        }
+
+        .goal-bar-fill.warning {
+            background: var(--warning);
+        }
+
+        .goal-bar-fill.danger {
+            background: var(--accent);
+        }
+
+        .goal-text {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-dim);
+            margin-bottom: 30px;
+        }
+
+        .log-button {
+            display: block;
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            border: none;
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 32px rgba(233, 69, 96, 0.35);
+            transition: transform 0.15s, box-shadow 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .log-button:active {
+            transform: scale(0.93);
+            box-shadow: 0 4px 16px rgba(233, 69, 96, 0.25);
+        }
+
+        .log-button .icon {
+            font-size: 40px;
+        }
+
+        .undo-btn {
+            display: block;
+            margin: 0 auto 30px;
+            background: none;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-dim);
+            font-size: 13px;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .undo-btn:active {
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* Today's log list */
+        .today-log {
+            margin-top: 20px;
+        }
+
+        .today-log h3 {
+            font-size: 14px;
+            color: var(--text-dim);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .log-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--surface);
+            border-radius: 12px;
+            margin-bottom: 8px;
+        }
+
+        .log-entry .time {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .log-entry .index {
+            font-size: 13px;
+            color: var(--text-dim);
+        }
+
+        /* Stats Section */
+        .stat-card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card h3 {
+            font-size: 13px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat-item .value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .stat-item .label {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+
+        /* Chart */
+        .chart-container {
+            width: 100%;
+            height: 200px;
+            position: relative;
+        }
+
+        .chart-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* History bars */
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            height: 160px;
+            padding: 0 4px;
+        }
+
+        .bar-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            justify-content: flex-end;
+        }
+
+        .bar {
+            width: 100%;
+            min-height: 2px;
+            background: linear-gradient(to top, var(--accent), var(--accent-light));
+            border-radius: 4px 4px 0 0;
+            transition: height 0.4s ease;
+        }
+
+        .bar-label {
+            font-size: 10px;
+            color: var(--text-dim);
+            margin-top: 6px;
+        }
+
+        .bar-value {
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text);
+        }
+
+        /* Settings Section */
+        .setting-group {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .setting-group h3 {
+            font-size: 13px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+        }
+
+        .setting-row label {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .setting-row input[type="number"] {
+            width: 80px;
+            background: var(--bg);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text);
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            padding: 8px;
+            border-radius: 10px;
+            -webkit-appearance: none;
+        }
+
+        .danger-zone button {
+            width: 100%;
+            padding: 14px;
+            background: rgba(233, 69, 96, 0.1);
+            border: 1px solid rgba(233, 69, 96, 0.3);
+            color: var(--accent);
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .danger-zone button:active {
+            background: rgba(233, 69, 96, 0.2);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .log-entry {
+            animation: fadeIn 0.25s ease;
+        }
+
+        /* Money saved card */
+        .money-card {
+            background: linear-gradient(135deg, var(--surface2), var(--surface));
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .money-card .amount {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--success);
+        }
+
+        .money-card .sublabel {
+            font-size: 13px;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+
+        .price-input-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .price-input-row span {
+            font-size: 15px;
+            color: var(--text-dim);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Smoke Log</h1>
+        <div class="header-date" id="headerDate"></div>
+    </div>
+
+    <div class="nav">
+        <button class="active" data-tab="today">Heute</button>
+        <button data-tab="stats">Statistik</button>
+        <button data-tab="settings">Einstellungen</button>
+    </div>
+
+    <!-- TODAY -->
+    <div class="section active" id="today">
+        <div class="today-count">
+            <div class="number" id="todayCount">0</div>
+            <div class="label">Zigaretten heute</div>
+        </div>
+
+        <div class="goal-bar"><div class="goal-bar-fill" id="goalBarFill"></div></div>
+        <div class="goal-text" id="goalText"></div>
+
+        <button class="log-button" id="logBtn">
+            <span class="icon">+</span>
+            <span>Eintragen</span>
+        </button>
+
+        <button class="undo-btn" id="undoBtn" style="display:none;">Letzte entfernen</button>
+
+        <div class="today-log" id="todayLog">
+            <h3>Heutige Eintr&auml;ge</h3>
+            <div id="todayEntries"></div>
+        </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="section" id="stats">
+        <div class="stat-card">
+            <h3>Zusammenfassung</h3>
+            <div class="stat-row">
+                <div class="stat-item">
+                    <div class="value" id="statToday">0</div>
+                    <div class="label">Heute</div>
+                </div>
+                <div class="stat-item">
+                    <div class="value" id="statWeek">0</div>
+                    <div class="label">Diese Woche</div>
+                </div>
+                <div class="stat-item">
+                    <div class="value" id="statMonth">0</div>
+                    <div class="label">Dieser Monat</div>
+                </div>
+            </div>
+            <div class="stat-row">
+                <div class="stat-item">
+                    <div class="value" id="statAvg">0</div>
+                    <div class="label">Schnitt/Tag</div>
+                </div>
+                <div class="stat-item">
+                    <div class="value" id="statBest">0</div>
+                    <div class="label">Bester Tag</div>
+                </div>
+                <div class="stat-item">
+                    <div class="value" id="statTotal">0</div>
+                    <div class="label">Gesamt</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="money-card">
+            <div class="sublabel">Ausgaben diesen Monat</div>
+            <div class="amount" id="moneyMonth">0,00 &euro;</div>
+            <div class="sublabel" id="moneyTotal" style="margin-top:12px;"></div>
+        </div>
+
+        <div class="stat-card">
+            <h3>Letzte 14 Tage</h3>
+            <div class="bar-chart" id="barChart"></div>
+        </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="section" id="settings">
+        <div class="setting-group">
+            <h3>Tagesziel</h3>
+            <div class="setting-row">
+                <label>Max. Zigaretten/Tag</label>
+                <input type="number" id="goalInput" min="1" max="100" value="20">
+            </div>
+        </div>
+
+        <div class="setting-group">
+            <h3>Kosten</h3>
+            <div class="setting-row">
+                <label>Preis pro Schachtel</label>
+                <div class="price-input-row">
+                    <input type="number" id="priceInput" min="0" step="0.10" value="8.00">
+                    <span>&euro;</span>
+                </div>
+            </div>
+            <div class="setting-row">
+                <label>Zigaretten pro Schachtel</label>
+                <input type="number" id="packSizeInput" min="1" max="50" value="20">
+            </div>
+        </div>
+
+        <div class="setting-group danger-zone">
+            <h3>Daten</h3>
+            <button id="exportBtn">Daten exportieren (CSV)</button>
+            <div style="height:12px;"></div>
+            <button id="resetBtn">Alle Daten l&ouml;schen</button>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        'use strict';
+
+        // --- Data Layer ---
+        const STORAGE_KEY = 'smokelog_data';
+        const SETTINGS_KEY = 'smokelog_settings';
+
+        function loadData() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+            } catch { return {}; }
+        }
+
+        function saveData(data) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        function loadSettings() {
+            try {
+                return JSON.parse(localStorage.getItem(SETTINGS_KEY)) || { goal: 20, price: 8.00, packSize: 20 };
+            } catch { return { goal: 20, price: 8.00, packSize: 20 }; }
+        }
+
+        function saveSettings(s) {
+            localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+        }
+
+        function todayKey() {
+            const d = new Date();
+            return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+        }
+
+        function dateKey(d) {
+            return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+        }
+
+        function formatTime(iso) {
+            const d = new Date(iso);
+            return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+        }
+
+        function formatDate(dateStr) {
+            const [y, m, d] = dateStr.split('-');
+            return d + '.' + m + '.';
+        }
+
+        const WEEKDAYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+
+        // --- App State ---
+        let data = loadData();
+        let settings = loadSettings();
+
+        // --- DOM ---
+        const $todayCount = document.getElementById('todayCount');
+        const $goalBarFill = document.getElementById('goalBarFill');
+        const $goalText = document.getElementById('goalText');
+        const $logBtn = document.getElementById('logBtn');
+        const $undoBtn = document.getElementById('undoBtn');
+        const $todayEntries = document.getElementById('todayEntries');
+        const $headerDate = document.getElementById('headerDate');
+        const $goalInput = document.getElementById('goalInput');
+        const $priceInput = document.getElementById('priceInput');
+        const $packSizeInput = document.getElementById('packSizeInput');
+
+        // --- Navigation ---
+        document.querySelectorAll('.nav button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab).classList.add('active');
+                if (btn.dataset.tab === 'stats') updateStats();
+            });
+        });
+
+        // --- Header Date ---
+        function updateHeaderDate() {
+            const d = new Date();
+            const options = { weekday: 'long', day: 'numeric', month: 'long' };
+            $headerDate.textContent = d.toLocaleDateString('de-DE', options);
+        }
+
+        // --- Today View ---
+        function getTodayEntries() {
+            return data[todayKey()] || [];
+        }
+
+        function updateTodayView() {
+            const entries = getTodayEntries();
+            const count = entries.length;
+
+            $todayCount.textContent = count;
+
+            // Goal bar
+            const pct = Math.min((count / settings.goal) * 100, 100);
+            $goalBarFill.style.width = pct + '%';
+            $goalBarFill.className = 'goal-bar-fill';
+            if (pct >= 100) $goalBarFill.classList.add('danger');
+            else if (pct >= 75) $goalBarFill.classList.add('warning');
+
+            const remaining = Math.max(settings.goal - count, 0);
+            if (count >= settings.goal) {
+                $goalText.textContent = 'Tagesziel erreicht!';
+            } else {
+                $goalText.textContent = 'Noch ' + remaining + ' bis zum Tageslimit';
+            }
+
+            // Undo button
+            $undoBtn.style.display = count > 0 ? 'block' : 'none';
+
+            // Entry list
+            $todayEntries.innerHTML = '';
+            for (let i = entries.length - 1; i >= 0; i--) {
+                const el = document.createElement('div');
+                el.className = 'log-entry';
+                el.innerHTML = '<span class="time">' + formatTime(entries[i]) + '</span><span class="index">#' + (i + 1) + '</span>';
+                $todayEntries.appendChild(el);
+            }
+        }
+
+        // --- Log Cigarette ---
+        $logBtn.addEventListener('click', () => {
+            const key = todayKey();
+            if (!data[key]) data[key] = [];
+            data[key].push(new Date().toISOString());
+            saveData(data);
+
+            // Bump animation
+            $todayCount.classList.add('bump');
+            setTimeout(() => $todayCount.classList.remove('bump'), 150);
+
+            // Haptic feedback
+            if (navigator.vibrate) navigator.vibrate(30);
+
+            updateTodayView();
+        });
+
+        // --- Undo ---
+        $undoBtn.addEventListener('click', () => {
+            const key = todayKey();
+            if (data[key] && data[key].length > 0) {
+                data[key].pop();
+                if (data[key].length === 0) delete data[key];
+                saveData(data);
+                updateTodayView();
+            }
+        });
+
+        // --- Stats ---
+        function updateStats() {
+            const today = new Date();
+            const tk = todayKey();
+            const todayEntries = data[tk] || [];
+
+            // Today
+            document.getElementById('statToday').textContent = todayEntries.length;
+
+            // This week (Mon-Sun)
+            const dayOfWeek = (today.getDay() + 6) % 7; // Mon=0
+            let weekTotal = 0;
+            for (let i = 0; i <= dayOfWeek; i++) {
+                const d = new Date(today);
+                d.setDate(d.getDate() - i);
+                const entries = data[dateKey(d)] || [];
+                weekTotal += entries.length;
+            }
+            document.getElementById('statWeek').textContent = weekTotal;
+
+            // This month
+            let monthTotal = 0;
+            const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            for (let d = new Date(firstOfMonth); d <= today; d.setDate(d.getDate() + 1)) {
+                const entries = data[dateKey(d)] || [];
+                monthTotal += entries.length;
+            }
+            document.getElementById('statMonth').textContent = monthTotal;
+
+            // All time total & average & best
+            const allDays = Object.keys(data).sort();
+            let total = 0;
+            let bestDay = Infinity;
+            allDays.forEach(k => {
+                const c = data[k].length;
+                total += c;
+                if (c < bestDay) bestDay = c;
+            });
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statAvg').textContent = allDays.length > 0
+                ? (total / allDays.length).toFixed(1)
+                : '0';
+            document.getElementById('statBest').textContent = allDays.length > 0 ? bestDay : '0';
+
+            // Money
+            const pricePerCig = settings.price / settings.packSize;
+            const monthMoney = (monthTotal * pricePerCig).toFixed(2).replace('.', ',');
+            const totalMoney = (total * pricePerCig).toFixed(2).replace('.', ',');
+            document.getElementById('moneyMonth').textContent = monthMoney + ' \u20AC';
+            document.getElementById('moneyTotal').textContent = 'Gesamt: ' + totalMoney + ' \u20AC';
+
+            // Bar chart - last 14 days
+            const $barChart = document.getElementById('barChart');
+            $barChart.innerHTML = '';
+            const days = [];
+            for (let i = 13; i >= 0; i--) {
+                const d = new Date(today);
+                d.setDate(d.getDate() - i);
+                const k = dateKey(d);
+                const c = (data[k] || []).length;
+                days.push({ key: k, count: c, date: d });
+            }
+            const maxCount = Math.max(...days.map(d => d.count), 1);
+
+            days.forEach(day => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'bar-wrapper';
+                const val = document.createElement('div');
+                val.className = 'bar-value';
+                val.textContent = day.count || '';
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = (day.count / maxCount * 130) + 'px';
+                const label = document.createElement('div');
+                label.className = 'bar-label';
+                label.textContent = WEEKDAYS[day.date.getDay()];
+                wrapper.appendChild(val);
+                wrapper.appendChild(bar);
+                wrapper.appendChild(label);
+                $barChart.appendChild(wrapper);
+            });
+        }
+
+        // --- Settings ---
+        $goalInput.value = settings.goal;
+        $priceInput.value = settings.price.toFixed(2);
+        $packSizeInput.value = settings.packSize;
+
+        $goalInput.addEventListener('change', () => {
+            settings.goal = parseInt($goalInput.value) || 20;
+            saveSettings(settings);
+            updateTodayView();
+        });
+
+        $priceInput.addEventListener('change', () => {
+            settings.price = parseFloat($priceInput.value) || 8.00;
+            saveSettings(settings);
+        });
+
+        $packSizeInput.addEventListener('change', () => {
+            settings.packSize = parseInt($packSizeInput.value) || 20;
+            saveSettings(settings);
+        });
+
+        // Export CSV
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            let csv = 'Datum,Anzahl,Uhrzeiten\n';
+            Object.keys(data).sort().forEach(key => {
+                const entries = data[key];
+                const times = entries.map(e => formatTime(e)).join('; ');
+                csv += key + ',' + entries.length + ',"' + times + '"\n';
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'smokelog_export.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // Reset
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (confirm('Wirklich alle Daten l\u00f6schen? Das kann nicht r\u00fcckg\u00e4ngig gemacht werden!')) {
+                data = {};
+                saveData(data);
+                updateTodayView();
+                updateStats();
+            }
+        });
+
+        // --- Init ---
+        updateHeaderDate();
+        updateTodayView();
+
+        // Auto-refresh at midnight
+        function msUntilMidnight() {
+            const now = new Date();
+            const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+            return midnight - now;
+        }
+        setTimeout(() => {
+            updateHeaderDate();
+            updateTodayView();
+        }, msUntilMidnight() + 1000);
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
+        }
+    })();
+    </script>
+</body>
+</html>
