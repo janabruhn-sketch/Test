@@ -2,7 +2,7 @@
   "name": "Rezeptbuch - Deine Rezepte",
   "short_name": "Rezeptbuch",
   "description": "Dein persönliches Rezeptbuch mit einfachem Import aus Claude Chat",
-  "start_url": "/",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#F8F5F0",
   "theme_color": "#E76F51",
