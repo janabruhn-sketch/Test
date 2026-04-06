@@ -48,7 +48,12 @@
         .detail-header { border-radius:20px; padding:28px 24px; margin-bottom:20px; border-left:4px solid; }
         .detail-header .cat { font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; }
         .detail-header h2 { margin:8px 0 4px; font-family:"Playfair Display",serif; font-size:26px; color:#2c2c2c; }
-        .detail-header .srv { color:#888; margin:0; }
+        .detail-header .srv { color:#888; margin:0; display:flex; align-items:center; gap:10px; margin-top:8px; }
+        .srv-control { display:inline-flex; align-items:center; gap:0; background:#fff; border-radius:10px; overflow:hidden; border:1.5px solid #e0dcd8; }
+        .srv-btn { width:32px; height:32px; border:none; background:none; cursor:pointer; font-size:18px; font-weight:700; color:#2A9D8F; display:flex; align-items:center; justify-content:center; }
+        .srv-btn:active { background:#f0f0f0; }
+        .srv-btn:disabled { color:#ccc; cursor:default; }
+        .srv-val { width:28px; text-align:center; font-size:15px; font-weight:700; color:#2c2c2c; }
         .detail-macros { display:flex; gap:10px; margin-bottom:24px; flex-wrap:wrap; }
         .detail-section { background:#fff; border-radius:16px; padding:20px 22px; margin-bottom:16px; border:1.5px solid #f0ece8; }
         .detail-section h4 { margin:0 0 14px; font-size:13px; letter-spacing:1.5px; color:#aaa; text-transform:uppercase; }
@@ -510,29 +515,56 @@ function renderList(app) {
   bindListEvents();
 }
 
+function scaleAmount(original, factor) {
+  // Parse numeric amounts and scale them, keep units
+  return original.replace(/(\d+[.,]?\d*)/g, (match) => {
+    const num = parseFloat(match.replace(",", "."));
+    const scaled = num * factor;
+    // Format nicely: no unnecessary decimals
+    if (scaled === Math.round(scaled)) return String(Math.round(scaled));
+    return scaled.toFixed(1).replace(".", ",");
+  });
+}
+
+let currentServings = 0;
+
 function renderDetail(app) {
   const r = recipes.find(x => x.id === selectedId);
   if (!r) { view = "list"; render(); return; }
   const c = cc(r.category);
+  if (currentServings === 0) currentServings = r.servings;
+  const factor = currentServings / r.servings;
+
+  const scaledKcal = Math.round(r.macros.kcal * factor);
+  const scaledProtein = Math.round(r.macros.protein * factor);
+  const scaledCarbs = Math.round(r.macros.carbs * factor);
+  const scaledFat = Math.round(r.macros.fat * factor);
 
   let html = `
     <button class="back-btn" id="backBtn">\u2190 Zur\u00fcck</button>
     <div class="detail-header" style="background:${c}15;border-left-color:${c}">
       <span class="cat" style="color:${c}">${esc(r.category)} \u00b7 ${esc(r.prepTime)}</span>
       <h2>${esc(r.title)}</h2>
-      <p class="srv">${r.servings} Portion${r.servings > 1 ? "en" : ""}</p>
+      <p class="srv">
+        <span class="srv-control">
+          <button class="srv-btn" id="srvMinus"${currentServings <= 1 ? " disabled" : ""}>-</button>
+          <span class="srv-val" id="srvVal">${currentServings}</span>
+          <button class="srv-btn" id="srvPlus">+</button>
+        </span>
+        Portion${currentServings > 1 ? "en" : ""}
+      </p>
     </div>
     <div class="detail-macros">
-      ${macroPill("kcal", r.macros.kcal, "#E76F51")}
-      ${macroPill("Protein", r.macros.protein + "g", "#2A9D8F")}
-      ${macroPill("Carbs", r.macros.carbs + "g", "#F4A261")}
-      ${macroPill("Fett", r.macros.fat + "g", "#457B9D")}
+      ${macroPill("kcal", scaledKcal, "#E76F51")}
+      ${macroPill("Protein", scaledProtein + "g", "#2A9D8F")}
+      ${macroPill("Carbs", scaledCarbs + "g", "#F4A261")}
+      ${macroPill("Fett", scaledFat + "g", "#457B9D")}
     </div>
     <div class="detail-section">
       <h4>Zutaten</h4>
       ${r.ingredients.map((ing, i) =>
         `<div class="ing-row" style="${i < r.ingredients.length - 1 ? "border-bottom:1px solid #f5f5f5" : ""}">
-          <span class="name">${esc(ing.name)}</span><span class="amt">${esc(ing.amount)}</span>
+          <span class="name">${esc(ing.name)}</span><span class="amt">${esc(scaleAmount(ing.amount, factor))}</span>
         </div>`
       ).join("")}
     </div>
@@ -557,11 +589,14 @@ function renderDetail(app) {
   html += `<button class="del-btn" id="delBtn">Rezept l\u00f6schen</button>`;
   app.innerHTML = html;
 
-  document.getElementById("backBtn").addEventListener("click", () => { view = "list"; render(); });
+  document.getElementById("backBtn").addEventListener("click", () => { currentServings = 0; view = "list"; render(); });
+  document.getElementById("srvMinus").addEventListener("click", () => { if (currentServings > 1) { currentServings--; renderDetail(app); } });
+  document.getElementById("srvPlus").addEventListener("click", () => { currentServings++; renderDetail(app); });
   document.getElementById("delBtn").addEventListener("click", () => {
     if (confirm("Rezept wirklich l\u00f6schen?")) {
       recipes = recipes.filter(x => x.id !== selectedId);
       saveRecipes();
+      currentServings = 0;
       view = "list";
       render();
     }
