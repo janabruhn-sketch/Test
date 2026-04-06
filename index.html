@@ -4,837 +4,776 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Smoke Log">
-    <meta name="theme-color" content="#1a1a2e">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Rezeptbuch">
+    <meta name="theme-color" content="#E76F51">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <title>Smoke Log - Zigaretten Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Rezeptbuch</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        :root {
-            --bg: #1a1a2e;
-            --surface: #16213e;
-            --surface2: #0f3460;
-            --accent: #e94560;
-            --accent-light: #ff6b81;
-            --text: #eaeaea;
-            --text-dim: #8a8a9a;
-            --success: #2ecc71;
-            --warning: #f39c12;
-            --safe-top: env(safe-area-inset-top, 20px);
-            --safe-bottom: env(safe-area-inset-bottom, 20px);
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Header */
-        .header {
-            padding: calc(var(--safe-top) + 12px) 20px 12px;
-            background: var(--surface);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header h1 {
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: -0.3px;
-        }
-
-        .header-date {
-            font-size: 13px;
-            color: var(--text-dim);
-        }
-
-        /* Navigation */
-        .nav {
-            display: flex;
-            background: var(--surface);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding: 0 12px;
-        }
-
-        .nav button {
-            flex: 1;
-            background: none;
-            border: none;
-            color: var(--text-dim);
-            font-size: 13px;
-            font-weight: 600;
-            padding: 12px 8px;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s;
-        }
-
-        .nav button.active {
-            color: var(--accent);
-            border-bottom-color: var(--accent);
-        }
-
-        /* Sections */
-        .section {
-            display: none;
-            padding: 20px;
-            padding-bottom: calc(var(--safe-bottom) + 100px);
-        }
-
-        .section.active {
-            display: block;
-        }
-
-        /* Today Section */
-        .today-count {
-            text-align: center;
-            margin: 30px 0;
-        }
-
-        .today-count .number {
-            font-size: 96px;
-            font-weight: 800;
-            line-height: 1;
-            color: var(--accent);
-            transition: transform 0.15s;
-        }
-
-        .today-count .number.bump {
-            transform: scale(1.1);
-        }
-
-        .today-count .label {
-            font-size: 16px;
-            color: var(--text-dim);
-            margin-top: 8px;
-        }
-
-        .goal-bar {
-            background: rgba(255,255,255,0.05);
-            border-radius: 12px;
-            height: 8px;
-            margin: 0 20px 8px;
-            overflow: hidden;
-        }
-
-        .goal-bar-fill {
-            height: 100%;
-            border-radius: 12px;
-            transition: width 0.4s ease, background 0.4s;
-            background: var(--success);
-        }
-
-        .goal-bar-fill.warning {
-            background: var(--warning);
-        }
-
-        .goal-bar-fill.danger {
-            background: var(--accent);
-        }
-
-        .goal-text {
-            text-align: center;
-            font-size: 13px;
-            color: var(--text-dim);
-            margin-bottom: 30px;
-        }
-
-        .log-button {
-            display: block;
-            width: 160px;
-            height: 160px;
-            margin: 0 auto 30px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent), var(--accent-light));
-            border: none;
-            color: white;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 8px 32px rgba(233, 69, 96, 0.35);
-            transition: transform 0.15s, box-shadow 0.15s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .log-button:active {
-            transform: scale(0.93);
-            box-shadow: 0 4px 16px rgba(233, 69, 96, 0.25);
-        }
-
-        .log-button .icon {
-            font-size: 40px;
-        }
-
-        .undo-btn {
-            display: block;
-            margin: 0 auto 30px;
-            background: none;
-            border: 1px solid rgba(255,255,255,0.1);
-            color: var(--text-dim);
-            font-size: 13px;
-            padding: 8px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-        }
-
-        .undo-btn:active {
-            background: rgba(255,255,255,0.05);
-        }
-
-        /* Today's log list */
-        .today-log {
-            margin-top: 20px;
-        }
-
-        .today-log h3 {
-            font-size: 14px;
-            color: var(--text-dim);
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .log-entry {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 16px;
-            background: var(--surface);
-            border-radius: 12px;
-            margin-bottom: 8px;
-        }
-
-        .log-entry .time {
-            font-size: 15px;
-            font-weight: 600;
-        }
-
-        .log-entry .index {
-            font-size: 13px;
-            color: var(--text-dim);
-        }
-
-        /* Stats Section */
-        .stat-card {
-            background: var(--surface);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
-        }
-
-        .stat-card h3 {
-            font-size: 13px;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
-        }
-
-        .stat-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 16px;
-        }
-
-        .stat-item {
-            text-align: center;
-            flex: 1;
-        }
-
-        .stat-item .value {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--accent);
-        }
-
-        .stat-item .label {
-            font-size: 12px;
-            color: var(--text-dim);
-            margin-top: 2px;
-        }
-
-        /* Chart */
-        .chart-container {
-            width: 100%;
-            height: 200px;
-            position: relative;
-        }
-
-        .chart-canvas {
-            width: 100%;
-            height: 100%;
-        }
-
-        /* History bars */
-        .bar-chart {
-            display: flex;
-            align-items: flex-end;
-            gap: 4px;
-            height: 160px;
-            padding: 0 4px;
-        }
-
-        .bar-wrapper {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100%;
-            justify-content: flex-end;
-        }
-
-        .bar {
-            width: 100%;
-            min-height: 2px;
-            background: linear-gradient(to top, var(--accent), var(--accent-light));
-            border-radius: 4px 4px 0 0;
-            transition: height 0.4s ease;
-        }
-
-        .bar-label {
-            font-size: 10px;
-            color: var(--text-dim);
-            margin-top: 6px;
-        }
-
-        .bar-value {
-            font-size: 11px;
-            font-weight: 700;
-            margin-bottom: 4px;
-            color: var(--text);
-        }
-
-        /* Settings Section */
-        .setting-group {
-            background: var(--surface);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
-        }
-
-        .setting-group h3 {
-            font-size: 13px;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 16px;
-        }
-
-        .setting-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-        }
-
-        .setting-row label {
-            font-size: 15px;
-            font-weight: 500;
-        }
-
-        .setting-row input[type="number"] {
-            width: 80px;
-            background: var(--bg);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: var(--text);
-            font-size: 18px;
-            font-weight: 700;
-            text-align: center;
-            padding: 8px;
-            border-radius: 10px;
-            -webkit-appearance: none;
-        }
-
-        .danger-zone button {
-            width: 100%;
-            padding: 14px;
-            background: rgba(233, 69, 96, 0.1);
-            border: 1px solid rgba(233, 69, 96, 0.3);
-            color: var(--accent);
-            font-size: 15px;
-            font-weight: 600;
-            border-radius: 12px;
-            cursor: pointer;
-        }
-
-        .danger-zone button:active {
-            background: rgba(233, 69, 96, 0.2);
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .log-entry {
-            animation: fadeIn 0.25s ease;
-        }
-
-        /* Money saved card */
-        .money-card {
-            background: linear-gradient(135deg, var(--surface2), var(--surface));
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
-            text-align: center;
-        }
-
-        .money-card .amount {
-            font-size: 36px;
-            font-weight: 800;
-            color: var(--success);
-        }
-
-        .money-card .sublabel {
-            font-size: 13px;
-            color: var(--text-dim);
-            margin-top: 4px;
-        }
-
-        .price-input-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .price-input-row span {
-            font-size: 15px;
-            color: var(--text-dim);
-        }
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+        body { font-family: "DM Sans", sans-serif; background: #F8F5F0; color: #2c2c2c; min-height:100vh; }
+        .app { max-width:520px; margin:0 auto; padding:24px 20px; min-height:100vh; }
+        .header { display:flex; align-items:center; gap:16px; margin-bottom:28px; }
+        .logo { width:56px; height:56px; border-radius:16px; background:linear-gradient(135deg,#E76F51,#F4A261); display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 4px 14px rgba(231,111,81,0.27); }
+        .header-text h1 { font-family: "Playfair Display", serif; font-size:28px; color:#2c2c2c; line-height:1; margin-bottom:2px; }
+        .header-text p { color:#aaa; font-size:13px; margin:0; }
+        .search-bar { width:100%; border:none; border-radius:14px; padding:12px 16px; font-size:14px; font-family:inherit; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.035); margin-bottom:16px; outline:none; }
+        .filters { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin-bottom:20px; -webkit-overflow-scrolling:touch; }
+        .filters::-webkit-scrollbar { display:none; }
+        .filter-btn { padding:6px 14px; border-radius:20px; border:none; cursor:pointer; font-size:12px; font-weight:600; white-space:nowrap; transition:all 0.15s; }
+        .filter-btn.active { background:#2A9D8F; color:#fff; box-shadow:0 2px 8px rgba(42,157,143,0.27); }
+        .filter-btn:not(.active) { background:#fff; color:#666; box-shadow:0 1px 4px rgba(0,0,0,0.04); }
+        .recipe-list { display:flex; flex-direction:column; gap:14px; padding-bottom:80px; }
+        .recipe-card { background:#fff; border-radius:20px; padding:22px 24px; cursor:pointer; box-shadow:0 2px 12px rgba(0,0,0,0.05); border:1.5px solid #f0ece8; transition:transform 0.15s, box-shadow 0.15s; position:relative; overflow:hidden; }
+        .recipe-card:active { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,0.09); }
+        .card-accent { position:absolute; top:0; right:0; width:80px; height:80px; border-radius:0 20px 0 80px; }
+        .card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
+        .cat-badge { border-radius:8px; padding:3px 10px; font-size:11px; font-weight:600; }
+        .prep-time { font-size:11px; color:#aaa; }
+        .card-title { margin:8px 0 4px; font-size:17px; font-family:"Playfair Display",serif; color:#2c2c2c; line-height:1.3; }
+        .card-servings { margin:0 0 12px; font-size:12px; color:#999; }
+        .tags { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+        .tag { background:#f0f0f0; color:#555; border-radius:20px; padding:2px 10px; font-size:11px; }
+        .macros { display:flex; gap:8px; justify-content:space-between; }
+        .macro-pill { display:flex; flex-direction:column; align-items:center; border-radius:12px; padding:8px 14px; min-width:60px; flex:1; }
+        .macro-pill .val { font-size:17px; font-weight:700; font-family:"Playfair Display",serif; }
+        .macro-pill .lbl { font-size:10px; color:#666; }
+        .fab { position:fixed; bottom:28px; right:20px; background:#2A9D8F; color:#fff; border:none; border-radius:28px; width:56px; height:56px; font-size:26px; cursor:pointer; box-shadow:0 4px 20px rgba(42,157,143,0.4); display:flex; align-items:center; justify-content:center; z-index:100; }
+        .fab:active { transform:scale(0.92); }
+        .import-btn { position:fixed; bottom:28px; right:86px; background:#457B9D; color:#fff; border:none; border-radius:28px; height:56px; padding:0 20px; font-size:13px; font-weight:600; cursor:pointer; box-shadow:0 4px 20px rgba(69,123,157,0.4); display:flex; align-items:center; justify-content:center; gap:8px; z-index:100; font-family:inherit; }
+        .import-btn:active { transform:scale(0.92); }
+        .back-btn { background:none; border:none; cursor:pointer; color:#888; font-size:14px; padding:8px 0; margin-bottom:16px; font-family:inherit; }
+        .detail-header { border-radius:20px; padding:28px 24px; margin-bottom:20px; border-left:4px solid; }
+        .detail-header .cat { font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; }
+        .detail-header h2 { margin:8px 0 4px; font-family:"Playfair Display",serif; font-size:26px; color:#2c2c2c; }
+        .detail-header .srv { color:#888; margin:0; }
+        .detail-macros { display:flex; gap:10px; margin-bottom:24px; flex-wrap:wrap; }
+        .detail-section { background:#fff; border-radius:16px; padding:20px 22px; margin-bottom:16px; border:1.5px solid #f0ece8; }
+        .detail-section h4 { margin:0 0 14px; font-size:13px; letter-spacing:1.5px; color:#aaa; text-transform:uppercase; }
+        .ing-row { display:flex; justify-content:space-between; padding:9px 0; font-size:15px; }
+        .ing-row .name { color:#333; }
+        .ing-row .amt { color:#888; font-size:14px; font-weight:600; }
+        .step-row { display:flex; gap:14px; margin-bottom:14px; }
+        .step-num { min-width:28px; height:28px; border-radius:50%; color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; flex-shrink:0; }
+        .step-text { margin:4px 0 0; font-size:14px; color:#444; line-height:1.6; }
+        .tip-box { background:#FFF9F0; border-radius:16px; padding:16px 20px; border:1.5px solid rgba(244,162,97,0.2); margin-bottom:20px; }
+        .tip-box .tip-label { font-size:12px; color:#F4A261; font-weight:600; letter-spacing:1px; text-transform:uppercase; }
+        .tip-box p { margin:6px 0 0; font-size:13px; color:#666; line-height:1.6; }
+        .del-btn { background:none; border:1.5px solid #ffcccc; color:#e05050; border-radius:12px; padding:10px 20px; cursor:pointer; font-size:13px; width:100%; font-family:inherit; }
+        .del-btn:active { background:#fff5f5; }
+        .form-label { font-size:12px; color:#aaa; letter-spacing:1px; text-transform:uppercase; margin-bottom:6px; display:block; }
+        .form-input { width:100%; border:1.5px solid #ececec; border-radius:10px; padding:10px 14px; font-size:14px; font-family:inherit; outline:none; background:#fafafa; }
+        .form-input:focus { border-color:#2A9D8F; }
+        .form-group { margin-bottom:16px; }
+        .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .form-macros { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px; }
+        .ing-grid { display:grid; grid-template-columns:100px 1fr; gap:8px; margin-bottom:8px; }
+        .step-edit { display:flex; gap:10px; margin-bottom:8px; align-items:flex-start; }
+        .step-edit-num { min-width:28px; height:28px; border-radius:50%; background:#eee; display:flex; align-items:center; justify-content:center; font-size:12px; color:#888; margin-top:2px; }
+        .add-row-btn { background:none; border:1.5px dashed #ddd; border-radius:10px; padding:8px 16px; cursor:pointer; color:#aaa; font-size:13px; width:100%; font-family:inherit; }
+        .add-row-btn:active { background:#f5f5f5; }
+        .save-btn { background:#2A9D8F; color:#fff; border:none; border-radius:14px; padding:14px; font-size:16px; cursor:pointer; font-family:"Playfair Display",serif; margin-top:8px; width:100%; }
+        .save-btn:active { opacity:0.85; }
+        .modal-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:200; display:flex; align-items:center; justify-content:center; padding:20px; }
+        .modal { background:#fff; border-radius:20px; padding:28px 24px; max-width:480px; width:100%; max-height:80vh; overflow-y:auto; }
+        .modal h3 { font-family:"Playfair Display",serif; font-size:22px; margin-bottom:8px; }
+        .modal p { font-size:13px; color:#666; line-height:1.5; margin-bottom:16px; }
+        .modal textarea { width:100%; min-height:200px; border:1.5px solid #ececec; border-radius:12px; padding:14px; font-size:13px; font-family:"DM Sans",monospace; outline:none; resize:vertical; background:#fafafa; }
+        .modal textarea:focus { border-color:#457B9D; }
+        .modal-actions { display:flex; gap:10px; margin-top:16px; }
+        .modal-actions button { flex:1; padding:12px; border-radius:12px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; }
+        .modal-cancel { background:#f0f0f0; border:none; color:#666; }
+        .modal-import { background:#457B9D; border:none; color:#fff; }
+        .modal-import:active { opacity:0.85; }
+        .modal-error { color:#e05050; font-size:12px; margin-top:8px; }
+        .modal-success { color:#2A9D8F; font-size:12px; margin-top:8px; }
+        .empty { text-align:center; color:#bbb; padding:40px 0; font-size:14px; }
+        .hidden { display:none !important; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+        .recipe-card { animation: fadeIn 0.25s ease; }
     </style>
 </head>
 <body>
+<div class="app" id="app"></div>
+<script>
+
+// ============================================================
+// REZEPT-DATEN — Neue Rezepte hier einfuegen oder ueber Import-Button
+// ============================================================
+const ALL_RECIPES = [
+  {
+    id: "1", title: "Chiapudding mit TK-Beeren", category: "Fr\u00fchst\u00fcck", servings: 2,
+    prepTime: "10 Min + 4h quellen",
+    macros: { kcal: 260, protein: 18, carbs: 19, fat: 10 },
+    ingredients: [
+      { amount: "60g", name: "Chiasamen" },
+      { amount: "200g", name: "Magerquark" },
+      { amount: "250ml", name: "H-Milch" },
+      { amount: "200g", name: "TK-Beeren (gemischt)" },
+      { amount: "1 TL", name: "Honig oder Erythrit" },
+      { amount: "\u00bd TL", name: "Vanilleextrakt" }
+    ],
+    steps: [
+      "Quark, H-Milch, Vanilleextrakt und S\u00fc\u00dfungsmittel glatt r\u00fchren.",
+      "Chiasamen unterr\u00fchren, 5 Min warten, nochmals r\u00fchren.",
+      "Abdecken und mind. 4h oder \u00fcber Nacht im K\u00fchlschrank quellen lassen.",
+      "TK-Beeren beim Essen separat dazugeben."
+    ],
+    notes: "Proteinboost: 1 Scoop Clear Whey (Beeren) einr\u00fchren \u2192 +20g Protein. H\u00e4lt 4\u20135 Tage.",
+    tags: ["Meal Prep", "High Protein"]
+  },
+  {
+    id: "2", title: "Thunfischsalat f\u00fcr die Woche", category: "Lunchbox", servings: 4,
+    prepTime: "15 Min",
+    macros: { kcal: 180, protein: 28, carbs: 8, fat: 3 },
+    ingredients: [
+      { amount: "3 Dosen", name: "Kronfisch (abgetropft)" },
+      { amount: "2 St\u00fcck", name: "Paprika (gemischt)" },
+      { amount: "2 St\u00fcck", name: "Zwiebeln" },
+      { amount: "3 St\u00fcck", name: "Saure Gurken" },
+      { amount: "150g", name: "Magerquark" },
+      { amount: "1 EL", name: "Senf" },
+      { amount: "2 EL", name: "Kalorienreduzierte Honig-Senf-So\u00dfe" }
+    ],
+    steps: [
+      "Paprika und Zwiebeln w\u00fcrfeln, saure Gurken fein hacken.",
+      "Quark, Senf und Honig-Senf-So\u00dfe glatt r\u00fchren, abschmecken.",
+      "Thunfisch abtropfen lassen, mit Gabel auflockern.",
+      "Alles vermengen, mind. 30 Min im K\u00fchlschrank ziehen lassen."
+    ],
+    notes: "Kein Mayo \u2192 h\u00e4lt 4 Tage. Gurken geben S\u00e4ure, sparsam nachsalzen.",
+    tags: ["Meal Prep", "High Protein"]
+  },
+  {
+    id: "3", title: "Seelachs mit Knoblauch-Mangold und Kartoffeln", category: "Abendessen", servings: 2,
+    prepTime: "30 Min",
+    macros: { kcal: 380, protein: 38, carbs: 28, fat: 10 },
+    ingredients: [
+      { amount: "400g", name: "Seelachsfilet" },
+      { amount: "500g", name: "Mangold" },
+      { amount: "300g", name: "Kartoffeln (festkochend)" },
+      { amount: "3 Zehen", name: "Knoblauch" },
+      { amount: "1 EL", name: "Oliven\u00f6l" },
+      { amount: "1 St\u00fcck", name: "Zitrone (Saft)" },
+      { amount: "nach Geschmack", name: "Salz, Pfeffer, Chiliflocken" }
+    ],
+    steps: [
+      "Kartoffeln sch\u00e4len, w\u00fcrfeln und in Salzwasser ca. 15 Min garen.",
+      "Mangold waschen, Stiele und Bl\u00e4tter trennen. Stiele in Streifen, Bl\u00e4tter grob hacken.",
+      "Knoblauch in Oliven\u00f6l anbraten, Mangoldstiele 3 Min mitbraten, dann Bl\u00e4tter dazu.",
+      "Seelachs w\u00fcrzen, in der Pfanne 3\u20134 Min je Seite braten.",
+      "Alles anrichten, mit Chiliflocken abschmecken."
+    ],
+    notes: "Mangold kann durch Spinat ersetzt werden. Seelachs nicht zu lange braten \u2014 wird sonst trocken.",
+    tags: ["High Protein", "Low Carb"]
+  },
+  {
+    id: "4", title: "Bratwurst-Wei\u00dfkohl-Eintopf", category: "Abendessen", servings: 4,
+    prepTime: "40 Min",
+    macros: { kcal: 420, protein: 24, carbs: 18, fat: 28 },
+    ingredients: [
+      { amount: "500g", name: "Bratwurst (in Scheiben)" },
+      { amount: "600g", name: "Wei\u00dfkohl (in Streifen)" },
+      { amount: "2 St\u00fcck", name: "Zwiebeln (gew\u00fcrfelt)" },
+      { amount: "2 St\u00fcck", name: "M\u00f6hren (in Scheiben)" },
+      { amount: "400ml", name: "Gem\u00fcsebr\u00fche" },
+      { amount: "1 EL", name: "\u00d6l" },
+      { amount: "1 TL", name: "K\u00fcmmel" },
+      { amount: "nach Geschmack", name: "Salz, Pfeffer, Paprikapulver" }
+    ],
+    steps: [
+      "Bratwurstscheiben in \u00d6l anbraten, herausnehmen.",
+      "Zwiebeln und M\u00f6hren im selben Topf anschwitzen.",
+      "Wei\u00dfkohl dazugeben, kurz mitbraten.",
+      "Br\u00fche angie\u00dfen, K\u00fcmmel und Paprikapulver einr\u00fchren.",
+      "Bratwurst zur\u00fcck in den Topf, 20 Min bei mittlerer Hitze k\u00f6cheln.",
+      "Abschmecken und servieren."
+    ],
+    notes: "H\u00e4lt 4 Tage, schmeckt am n\u00e4chsten Tag noch besser. Gut einfrierbar.",
+    tags: ["Meal Prep", "Eintopf"]
+  },
+  {
+    id: "5", title: "Chili con Carne", category: "Abendessen", servings: 6,
+    prepTime: "50 Min",
+    macros: { kcal: 390, protein: 30, carbs: 32, fat: 14 },
+    ingredients: [
+      { amount: "700g", name: "Rinderhackfleisch" },
+      { amount: "2 Dosen", name: "Kidneybohnen (abgetropft)" },
+      { amount: "1 Dose", name: "Mais (abgetropft)" },
+      { amount: "2 Dosen", name: "Gehackte Tomaten" },
+      { amount: "3 St\u00fcck", name: "Paprika (gemischt)" },
+      { amount: "2 St\u00fcck", name: "Zwiebeln" },
+      { amount: "3 Zehen", name: "Knoblauch" },
+      { amount: "2 EL", name: "Tomatenmark" },
+      { amount: "1 TL", name: "Kreuzk\u00fcmmel" },
+      { amount: "1 TL", name: "Paprikapulver (mild)" },
+      { amount: "\u00bd TL", name: "Chiliflocken (nach Geschmack)" },
+      { amount: "1 EL", name: "\u00d6l" }
+    ],
+    steps: [
+      "Zwiebeln, Knoblauch und Paprika w\u00fcrfeln.",
+      "Hackfleisch in \u00d6l scharf anbraten, Zwiebeln und Knoblauch dazu.",
+      "Tomatenmark einr\u00fchren, kurz mitr\u00f6sten.",
+      "Gehackte Tomaten, Gew\u00fcrze dazugeben und verr\u00fchren.",
+      "Bohnen, Mais und Paprika dazugeben.",
+      "30 Min bei niedriger Hitze k\u00f6cheln lassen, abschmecken."
+    ],
+    notes: "Mild halten \u2014 Christian mag es nicht scharf. Chili erst am Ende dosieren. 6er-Batch, gut einfrierbar.",
+    tags: ["Meal Prep", "Batch Cooking"]
+  },
+  {
+    id: "6", title: "H\u00e4hnchen-Gulasch", category: "Abendessen", servings: 4,
+    prepTime: "45 Min",
+    macros: { kcal: 340, protein: 38, carbs: 12, fat: 14 },
+    ingredients: [
+      { amount: "700g", name: "H\u00e4hnchenbrust (gew\u00fcrfelt)" },
+      { amount: "3 St\u00fcck", name: "Paprika (rot, gelb, orange)" },
+      { amount: "2 St\u00fcck", name: "Zwiebeln" },
+      { amount: "2 Zehen", name: "Knoblauch" },
+      { amount: "200ml", name: "H\u00fchnerbr\u00fche" },
+      { amount: "150g", name: "Schmand oder Frischk\u00e4se" },
+      { amount: "2 EL", name: "Paprikapulver (edels\u00fc\u00df)" },
+      { amount: "1 EL", name: "\u00d6l" },
+      { amount: "nach Geschmack", name: "Salz, Pfeffer, Majoran" }
+    ],
+    steps: [
+      "H\u00e4hnchenbrustst\u00fccke w\u00fcrzen und in \u00d6l scharf anbraten, herausnehmen.",
+      "Zwiebeln, Knoblauch und Paprika im selben Topf and\u00fcnsten.",
+      "Paprikapulver einr\u00fchren, kurz mitr\u00f6sten.",
+      "Br\u00fche angie\u00dfen, H\u00e4hnchen zur\u00fcck in den Topf, 20 Min k\u00f6cheln.",
+      "Schmand einr\u00fchren, nicht mehr aufkochen. Abschmecken."
+    ],
+    notes: "Gut einfrierbar in Silikonw\u00fcrfeln (150\u2013200ml). Schmand erst am Ende dazu.",
+    tags: ["Meal Prep", "High Protein"]
+  },
+  {
+    id: "7", title: "Geschmorte H\u00e4hnchenschenkel mit Champignons, Lauch und M\u00f6hren", category: "Abendessen", servings: 4,
+    prepTime: "60 Min",
+    macros: { kcal: 410, protein: 36, carbs: 10, fat: 22 },
+    ingredients: [
+      { amount: "4 St\u00fcck", name: "H\u00e4hnchenschenkel" },
+      { amount: "300g", name: "Champignons (geviertelt)" },
+      { amount: "2 Stangen", name: "Lauch (in Ringe)" },
+      { amount: "3 St\u00fcck", name: "M\u00f6hren (in Scheiben)" },
+      { amount: "2 Zehen", name: "Knoblauch" },
+      { amount: "300ml", name: "H\u00fchnerbr\u00fche" },
+      { amount: "1 EL", name: "\u00d6l" },
+      { amount: "1 TL", name: "Thymian" },
+      { amount: "nach Geschmack", name: "Salz, Pfeffer" }
+    ],
+    steps: [
+      "H\u00e4hnchenschenkel von allen Seiten in \u00d6l scharf anbraten, herausnehmen.",
+      "M\u00f6hren, Lauch und Champignons im selben Topf anschwitzen.",
+      "Knoblauch dazugeben, kurz mitbraten.",
+      "Br\u00fche und Thymian einr\u00fchren, H\u00e4hnchenschenkel obenauf legen.",
+      "Abgedeckt bei 170\u00b0C im Ofen 40 Min schmoren.",
+      "Deckel abnehmen, weitere 10 Min br\u00e4unen lassen. Abschmecken."
+    ],
+    notes: "Sehr aromatisch am n\u00e4chsten Tag. Schmorfl\u00fcssigkeit als So\u00dfe verwenden.",
+    tags: ["Meal Prep", "Ofengericht"]
+  },
+  {
+    id: "8", title: "Lachs-Auflauf mit Spinat und Frischk\u00e4se-Ei-Guss", category: "Abendessen", servings: 4,
+    prepTime: "40 Min",
+    macros: { kcal: 420, protein: 36, carbs: 6, fat: 28 },
+    ingredients: [
+      { amount: "500g", name: "Lachsfilet" },
+      { amount: "400g", name: "Blattspinat (TK, aufgetaut)" },
+      { amount: "200g", name: "Frischk\u00e4se" },
+      { amount: "4 St\u00fcck", name: "Eier" },
+      { amount: "100ml", name: "H-Milch" },
+      { amount: "2 Zehen", name: "Knoblauch" },
+      { amount: "50g", name: "K\u00e4se (gerieben, zum \u00dcberbacken)" },
+      { amount: "nach Geschmack", name: "Salz, Pfeffer, Muskatnuss, Dill" }
+    ],
+    steps: [
+      "Spinat gut ausdr\u00fccken, mit Knoblauch und Salz kurz in der Pfanne erhitzen.",
+      "Frischk\u00e4se, Eier und Milch glatt r\u00fchren, mit Salz, Pfeffer, Muskat und Dill w\u00fcrzen.",
+      "Auflaufform einfetten, Spinat als Boden einschichten.",
+      "Lachs in St\u00fccken obenauf legen, Frischk\u00e4se-Ei-Guss dar\u00fcbergie\u00dfen.",
+      "K\u00e4se dar\u00fcberstreuen, bei 180\u00b0C ca. 25 Min backen."
+    ],
+    notes: "TK-Spinat unbedingt gut ausdr\u00fccken \u2014 sonst wird der Auflauf w\u00e4ssrig. Sehr s\u00e4ttigend.",
+    tags: ["Low Carb", "High Protein", "Ofengericht"]
+  },
+  {
+    id: "9", title: "Hackfleisch-Paprika-Pfanne", category: "Abendessen", servings: 4,
+    prepTime: "25 Min",
+    macros: { kcal: 360, protein: 32, carbs: 14, fat: 18 },
+    ingredients: [
+      { amount: "600g", name: "Rinderhackfleisch" },
+      { amount: "3 St\u00fcck", name: "Paprika (gemischt)" },
+      { amount: "2 St\u00fcck", name: "Zwiebeln" },
+      { amount: "2 Zehen", name: "Knoblauch" },
+      { amount: "1 Dose", name: "Gehackte Tomaten" },
+      { amount: "1 EL", name: "Tomatenmark" },
+      { amount: "1 TL", name: "Paprikapulver (edels\u00fc\u00df)" },
+      { amount: "1 EL", name: "\u00d6l" },
+      { amount: "nach Geschmack", name: "Salz, Pfeffer, Oregano" }
+    ],
+    steps: [
+      "Hackfleisch in \u00d6l scharf anbraten und kr\u00fcmelig braten.",
+      "Zwiebeln, Knoblauch und Paprika dazugeben und mitbraten.",
+      "Tomatenmark einr\u00fchren, kurz anschwitzen.",
+      "Gehackte Tomaten und Gew\u00fcrze dazugeben, 10 Min k\u00f6cheln lassen.",
+      "Abschmecken und servieren."
+    ],
+    notes: "Schnelles Alltagsgericht. In Silikonw\u00fcrfeln einfrieren. Passt zu Reis, Brot oder Salat.",
+    tags: ["Meal Prep", "High Protein", "Schnell"]
+  },
+  {
+    id: "10", title: "Frikadellen", category: "Meal Prep", servings: 6,
+    prepTime: "30 Min",
+    macros: { kcal: 220, protein: 22, carbs: 4, fat: 13 },
+    ingredients: [
+      { amount: "700g", name: "Hackfleisch (gemischt oder Rind)" },
+      { amount: "2 St\u00fcck", name: "Eier" },
+      { amount: "1 St\u00fcck", name: "Zwiebel (fein gew\u00fcrfelt)" },
+      { amount: "2 EL", name: "Senf" },
+      { amount: "1 TL", name: "Paprikapulver" },
+      { amount: "nach Geschmack", name: "Salz, Pfeffer, Majoran" },
+      { amount: "1 EL", name: "\u00d6l (zum Braten)" }
+    ],
+    steps: [
+      "Alle Zutaten au\u00dfer \u00d6l gut verkneten.",
+      "Gleichm\u00e4\u00dfige B\u00e4llchen formen, leicht flachdr\u00fccken.",
+      "In \u00d6l bei mittlerer Hitze ca. 5 Min je Seite braten.",
+      "Zum Einfrieren: flach auf Backpapier legen, einfrieren, dann in T\u00fcten umf\u00fcllen."
+    ],
+    notes: "Vor dem Einfrieren flach auf Backpapier legen \u2014 kleben nicht zusammen. Aus dem TK direkt in Pfanne oder Ofen.",
+    tags: ["Meal Prep", "Batch Cooking", "High Protein"]
+  },
+  {
+    id: "11", title: "H\u00e4hnchen-Gulasch mit Ajvar und Cheddar", category: "Abendessen", servings: 4,
+    prepTime: "35 Min",
+    macros: { kcal: 370, protein: 40, carbs: 10, fat: 18 },
+    ingredients: [
+      { amount: "700g", name: "H\u00e4hnchenbrust (gew\u00fcrfelt)" },
+      { amount: "3 St\u00fcck", name: "Paprika (rot, gelb, orange)" },
+      { amount: "2 St\u00fcck", name: "Zwiebeln" },
+      { amount: "2 Zehen", name: "Knoblauch" },
+      { amount: "150g", name: "Ajvar (scharf)" },
+      { amount: "200ml", name: "H\u00fchnerbr\u00fche" },
+      { amount: "150g", name: "Schmelzk\u00e4se Cheddar" },
+      { amount: "1 EL", name: "\u00d6l" },
+      { amount: "nach Geschmack", name: "Salz, Pfeffer, Majoran" }
+    ],
+    steps: [
+      "H\u00e4hnchenbrustst\u00fccke w\u00fcrzen und in \u00d6l scharf anbraten, herausnehmen.",
+      "Zwiebeln, Knoblauch und Paprika im selben Topf and\u00fcnsten.",
+      "Ajvar dazugeben, 1\u20132 Min mitr\u00f6sten.",
+      "Br\u00fche angie\u00dfen, H\u00e4hnchen zur\u00fcck in den Topf. 20 Min bei mittlerer Hitze k\u00f6cheln.",
+      "Schmelzk\u00e4se in St\u00fccken einr\u00fchren bis er schmilzt. Nicht mehr aufkochen. Abschmecken \u2014 Ajvar ist w\u00fcrzig, sparsam nachsalzen."
+    ],
+    notes: "Erst am Ende abschmecken \u2014 Ajvar bringt bereits Sch\u00e4rfe und Salz. Gut einfrierbar in Silikonw\u00fcrfeln.",
+    tags: ["Meal Prep", "High Protein"]
+  }
+];
+
+const CATEGORIES = ["Alle", "Fr\u00fchst\u00fcck", "Lunchbox", "Abendessen", "Meal Prep", "Snack"];
+const CAT_COLORS = {
+  "Fr\u00fchst\u00fcck": "#F4A261", "Lunchbox": "#2A9D8F", "Abendessen": "#E76F51",
+  "Meal Prep": "#457B9D", "Snack": "#A8DADC"
+};
+
+// --- State ---
+let recipes = [];
+let view = "list"; // list | detail | add
+let selectedId = null;
+let filter = "Alle";
+let search = "";
+let importModalOpen = false;
+
+// --- Storage ---
+const STORAGE_KEY = "rezeptbuch-recipes";
+function loadRecipes() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (stored && stored.length) {
+      const storedIds = new Set(stored.map(r => r.id));
+      const newOnes = ALL_RECIPES.filter(r => !storedIds.has(r.id));
+      recipes = [...stored, ...newOnes];
+      if (newOnes.length > 0) saveRecipes();
+    } else {
+      recipes = [...ALL_RECIPES];
+      saveRecipes();
+    }
+  } catch { recipes = [...ALL_RECIPES]; saveRecipes(); }
+}
+function saveRecipes() { localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes)); }
+
+// --- Logo SVG ---
+const LOGO_SVG = `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="4" y="5" width="24" height="22" rx="3" fill="white" fill-opacity="0.25"/>
+  <rect x="4" y="5" width="24" height="22" rx="3" stroke="white" stroke-width="2"/>
+  <line x1="16" y1="5" x2="16" y2="27" stroke="white" stroke-width="1.5"/>
+  <line x1="10" y1="10" x2="10" y2="15" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="8.5" y1="10" x2="8.5" y2="13" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="11.5" y1="10" x2="11.5" y2="13" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M8.5 13.5 Q10 15 11.5 13.5" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="22" cy="11.5" rx="2" ry="2.5" stroke="white" stroke-width="1.5"/>
+  <line x1="22" y1="14" x2="22" y2="22" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+</svg>`;
+
+// --- Helpers ---
+function cc(cat) { return CAT_COLORS[cat] || "#888"; }
+function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+
+function macroPill(label, value, color) {
+  return `<div class="macro-pill" style="background:${color}22"><span class="val" style="color:${color}">${esc(String(value))}</span><span class="lbl">${esc(label)}</span></div>`;
+}
+
+// --- Render ---
+function render() {
+  const app = document.getElementById("app");
+  if (view === "list") renderList(app);
+  else if (view === "detail") renderDetail(app);
+  else if (view === "add") renderForm(app);
+}
+
+function renderList(app) {
+  const filtered = recipes.filter(r => {
+    const matchCat = filter === "Alle" || r.category === filter || (r.tags && r.tags.includes(filter));
+    const matchSearch = !search || r.title.toLowerCase().includes(search.toLowerCase());
+    return matchCat && matchSearch;
+  });
+
+  let html = `
     <div class="header">
-        <h1>Smoke Log</h1>
-        <div class="header-date" id="headerDate"></div>
+      <div class="logo">${LOGO_SVG}</div>
+      <div class="header-text">
+        <h1>Rezeptbuch</h1>
+        <p>${recipes.length} Rezept${recipes.length !== 1 ? "e" : ""} gespeichert</p>
+      </div>
     </div>
+    <input class="search-bar" id="searchInput" placeholder="\ud83d\udd0d Rezept suchen\u2026" value="${esc(search)}">
+    <div class="filters">${CATEGORIES.map(cat =>
+      `<button class="filter-btn ${filter === cat ? "active" : ""}" data-cat="${esc(cat)}">${esc(cat)}</button>`
+    ).join("")}</div>
+    <div class="recipe-list">`;
 
-    <div class="nav">
-        <button class="active" data-tab="today">Heute</button>
-        <button data-tab="stats">Statistik</button>
-        <button data-tab="settings">Einstellungen</button>
+  if (filtered.length === 0) {
+    html += `<div class="empty">Keine Rezepte gefunden</div>`;
+  } else {
+    filtered.forEach(r => {
+      const c = cc(r.category);
+      html += `
+      <div class="recipe-card" data-id="${esc(r.id)}">
+        <div class="card-accent" style="background:${c}18"></div>
+        <div class="card-top">
+          <span class="cat-badge" style="background:${c}22;color:${c}">${esc(r.category)}</span>
+          <span class="prep-time">\u23f1 ${esc(r.prepTime)}</span>
+        </div>
+        <h3 class="card-title">${esc(r.title)}</h3>
+        <p class="card-servings">${r.servings} Portion${r.servings > 1 ? "en" : ""}</p>
+        <div class="tags">${(r.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join("")}</div>
+        <div class="macros">
+          ${macroPill("kcal", r.macros.kcal, "#E76F51")}
+          ${macroPill("Protein", r.macros.protein + "g", "#2A9D8F")}
+          ${macroPill("Carbs", r.macros.carbs + "g", "#F4A261")}
+          ${macroPill("Fett", r.macros.fat + "g", "#457B9D")}
+        </div>
+      </div>`;
+    });
+  }
+
+  html += `</div>
+    <button class="import-btn" id="importBtn">\ud83d\udccb Import</button>
+    <button class="fab" id="addBtn">+</button>`;
+
+  if (importModalOpen) {
+    html += `
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal">
+        <h3>Rezepte importieren</h3>
+        <p>F\u00fcge JSON aus Claude Chat hier ein. Du kannst ein einzelnes Rezept oder ein Array von Rezepten einf\u00fcgen.</p>
+        <p style="font-size:11px;color:#aaa;background:#f8f8f8;padding:10px;border-radius:8px;font-family:monospace">
+          { "title": "...", "category": "Abendessen",<br>
+          &nbsp;&nbsp;"servings": 4, "prepTime": "30 Min",<br>
+          &nbsp;&nbsp;"macros": { "kcal": 0, "protein": 0, "carbs": 0, "fat": 0 },<br>
+          &nbsp;&nbsp;"ingredients": [{ "amount": "...", "name": "..." }],<br>
+          &nbsp;&nbsp;"steps": ["..."], "notes": "...", "tags": ["..."] }
+        </p>
+        <textarea id="importTextarea" placeholder="JSON hier einf\u00fcgen\u2026"></textarea>
+        <div id="importMsg"></div>
+        <div class="modal-actions">
+          <button class="modal-cancel" id="modalCancel">Abbrechen</button>
+          <button class="modal-import" id="modalImport">Importieren</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  app.innerHTML = html;
+  bindListEvents();
+}
+
+function renderDetail(app) {
+  const r = recipes.find(x => x.id === selectedId);
+  if (!r) { view = "list"; render(); return; }
+  const c = cc(r.category);
+
+  let html = `
+    <button class="back-btn" id="backBtn">\u2190 Zur\u00fcck</button>
+    <div class="detail-header" style="background:${c}15;border-left-color:${c}">
+      <span class="cat" style="color:${c}">${esc(r.category)} \u00b7 ${esc(r.prepTime)}</span>
+      <h2>${esc(r.title)}</h2>
+      <p class="srv">${r.servings} Portion${r.servings > 1 ? "en" : ""}</p>
     </div>
-
-    <!-- TODAY -->
-    <div class="section active" id="today">
-        <div class="today-count">
-            <div class="number" id="todayCount">0</div>
-            <div class="label">Zigaretten heute</div>
-        </div>
-
-        <div class="goal-bar"><div class="goal-bar-fill" id="goalBarFill"></div></div>
-        <div class="goal-text" id="goalText"></div>
-
-        <button class="log-button" id="logBtn">
-            <span class="icon">+</span>
-            <span>Eintragen</span>
-        </button>
-
-        <button class="undo-btn" id="undoBtn" style="display:none;">Letzte entfernen</button>
-
-        <div class="today-log" id="todayLog">
-            <h3>Heutige Eintr&auml;ge</h3>
-            <div id="todayEntries"></div>
-        </div>
+    <div class="detail-macros">
+      ${macroPill("kcal", r.macros.kcal, "#E76F51")}
+      ${macroPill("Protein", r.macros.protein + "g", "#2A9D8F")}
+      ${macroPill("Carbs", r.macros.carbs + "g", "#F4A261")}
+      ${macroPill("Fett", r.macros.fat + "g", "#457B9D")}
     </div>
-
-    <!-- STATS -->
-    <div class="section" id="stats">
-        <div class="stat-card">
-            <h3>Zusammenfassung</h3>
-            <div class="stat-row">
-                <div class="stat-item">
-                    <div class="value" id="statToday">0</div>
-                    <div class="label">Heute</div>
-                </div>
-                <div class="stat-item">
-                    <div class="value" id="statWeek">0</div>
-                    <div class="label">Diese Woche</div>
-                </div>
-                <div class="stat-item">
-                    <div class="value" id="statMonth">0</div>
-                    <div class="label">Dieser Monat</div>
-                </div>
-            </div>
-            <div class="stat-row">
-                <div class="stat-item">
-                    <div class="value" id="statAvg">0</div>
-                    <div class="label">Schnitt/Tag</div>
-                </div>
-                <div class="stat-item">
-                    <div class="value" id="statBest">0</div>
-                    <div class="label">Bester Tag</div>
-                </div>
-                <div class="stat-item">
-                    <div class="value" id="statTotal">0</div>
-                    <div class="label">Gesamt</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="money-card">
-            <div class="sublabel">Ausgaben diesen Monat</div>
-            <div class="amount" id="moneyMonth">0,00 &euro;</div>
-            <div class="sublabel" id="moneyTotal" style="margin-top:12px;"></div>
-        </div>
-
-        <div class="stat-card">
-            <h3>Letzte 14 Tage</h3>
-            <div class="bar-chart" id="barChart"></div>
-        </div>
+    <div class="detail-section">
+      <h4>Zutaten</h4>
+      ${r.ingredients.map((ing, i) =>
+        `<div class="ing-row" style="${i < r.ingredients.length - 1 ? "border-bottom:1px solid #f5f5f5" : ""}">
+          <span class="name">${esc(ing.name)}</span><span class="amt">${esc(ing.amount)}</span>
+        </div>`
+      ).join("")}
     </div>
+    <div class="detail-section">
+      <h4>Zubereitung</h4>
+      ${r.steps.map((step, i) =>
+        `<div class="step-row">
+          <div class="step-num" style="background:${c}">${i + 1}</div>
+          <p class="step-text">${esc(step)}</p>
+        </div>`
+      ).join("")}
+    </div>`;
 
-    <!-- SETTINGS -->
-    <div class="section" id="settings">
-        <div class="setting-group">
-            <h3>Tagesziel</h3>
-            <div class="setting-row">
-                <label>Max. Zigaretten/Tag</label>
-                <input type="number" id="goalInput" min="1" max="100" value="20">
-            </div>
+  if (r.notes) {
+    html += `
+    <div class="tip-box">
+      <span class="tip-label">\ud83d\udca1 Tipp</span>
+      <p>${esc(r.notes)}</p>
+    </div>`;
+  }
+
+  html += `<button class="del-btn" id="delBtn">Rezept l\u00f6schen</button>`;
+  app.innerHTML = html;
+
+  document.getElementById("backBtn").addEventListener("click", () => { view = "list"; render(); });
+  document.getElementById("delBtn").addEventListener("click", () => {
+    if (confirm("Rezept wirklich l\u00f6schen?")) {
+      recipes = recipes.filter(x => x.id !== selectedId);
+      saveRecipes();
+      view = "list";
+      render();
+    }
+  });
+}
+
+function renderForm(app) {
+  let html = `
+    <button class="back-btn" id="backBtn">\u2190 Abbrechen</button>
+    <h2 style="font-family:'Playfair Display',serif;font-size:24px;margin-bottom:24px">Neues Rezept</h2>
+    <form id="recipeForm">
+      <div class="form-group">
+        <label class="form-label">Titel *</label>
+        <input class="form-input" id="fTitle" placeholder="z.B. H\u00e4hnchen-Gulasch">
+      </div>
+      <div class="form-grid" style="margin-bottom:16px">
+        <div>
+          <label class="form-label">Kategorie</label>
+          <select class="form-input" id="fCat">
+            <option>Fr\u00fchst\u00fcck</option><option>Lunchbox</option><option selected>Abendessen</option><option>Meal Prep</option><option>Snack</option>
+          </select>
         </div>
-
-        <div class="setting-group">
-            <h3>Kosten</h3>
-            <div class="setting-row">
-                <label>Preis pro Schachtel</label>
-                <div class="price-input-row">
-                    <input type="number" id="priceInput" min="0" step="0.10" value="8.00">
-                    <span>&euro;</span>
-                </div>
-            </div>
-            <div class="setting-row">
-                <label>Zigaretten pro Schachtel</label>
-                <input type="number" id="packSizeInput" min="1" max="50" value="20">
-            </div>
+        <div>
+          <label class="form-label">Portionen</label>
+          <input class="form-input" type="number" id="fServings" value="2" min="1">
         </div>
-
-        <div class="setting-group danger-zone">
-            <h3>Daten</h3>
-            <button id="exportBtn">Daten exportieren (CSV)</button>
-            <div style="height:12px;"></div>
-            <button id="resetBtn">Alle Daten l&ouml;schen</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Zubereitungszeit</label>
+        <input class="form-input" id="fPrepTime" placeholder="z.B. 20 Min">
+      </div>
+      <div class="detail-section" style="margin-bottom:16px">
+        <label class="form-label">Makros pro Portion</label>
+        <div class="form-macros">
+          <input class="form-input" type="number" id="fKcal" placeholder="kcal" style="text-align:center">
+          <input class="form-input" type="number" id="fProtein" placeholder="Protein" style="text-align:center">
+          <input class="form-input" type="number" id="fCarbs" placeholder="Carbs" style="text-align:center">
+          <input class="form-input" type="number" id="fFat" placeholder="Fett" style="text-align:center">
         </div>
-    </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Zutaten</label>
+        <div id="ingRows">
+          <div class="ing-grid"><input class="form-input" placeholder="Menge"><input class="form-input" placeholder="Zutat"></div>
+        </div>
+        <button type="button" class="add-row-btn" id="addIngBtn">+ Zutat</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Zubereitung</label>
+        <div id="stepRows">
+          <div class="step-edit"><div class="step-edit-num">1</div><textarea class="form-input" style="resize:vertical;min-height:60px" placeholder="Schritt 1"></textarea></div>
+        </div>
+        <button type="button" class="add-row-btn" id="addStepBtn">+ Schritt</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tipps / Notizen</label>
+        <textarea class="form-input" id="fNotes" style="resize:vertical;min-height:80px" placeholder="Optionale Hinweise\u2026"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tags (kommagetrennt)</label>
+        <input class="form-input" id="fTags" placeholder="z.B. Meal Prep, High Protein">
+      </div>
+      <button type="submit" class="save-btn">Rezept speichern</button>
+    </form>`;
 
-    <script>
-    (function() {
-        'use strict';
+  app.innerHTML = html;
+  app.style.paddingBottom = "40px";
 
-        // --- Data Layer ---
-        const STORAGE_KEY = 'smokelog_data';
-        const SETTINGS_KEY = 'smokelog_settings';
+  document.getElementById("backBtn").addEventListener("click", () => { view = "list"; render(); });
 
-        function loadData() {
-            try {
-                return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-            } catch { return {}; }
-        }
+  document.getElementById("addIngBtn").addEventListener("click", () => {
+    const row = document.createElement("div");
+    row.className = "ing-grid";
+    row.innerHTML = `<input class="form-input" placeholder="Menge"><input class="form-input" placeholder="Zutat">`;
+    document.getElementById("ingRows").appendChild(row);
+  });
 
-        function saveData(data) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        }
+  document.getElementById("addStepBtn").addEventListener("click", () => {
+    const rows = document.getElementById("stepRows");
+    const n = rows.children.length + 1;
+    const row = document.createElement("div");
+    row.className = "step-edit";
+    row.innerHTML = `<div class="step-edit-num">${n}</div><textarea class="form-input" style="resize:vertical;min-height:60px" placeholder="Schritt ${n}"></textarea>`;
+    rows.appendChild(row);
+  });
 
-        function loadSettings() {
-            try {
-                return JSON.parse(localStorage.getItem(SETTINGS_KEY)) || { goal: 20, price: 8.00, packSize: 20 };
-            } catch { return { goal: 20, price: 8.00, packSize: 20 }; }
-        }
+  document.getElementById("recipeForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const title = document.getElementById("fTitle").value.trim();
+    if (!title) { alert("Bitte einen Titel eingeben."); return; }
 
-        function saveSettings(s) {
-            localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
-        }
+    const ingRows = document.getElementById("ingRows").children;
+    const ingredients = [];
+    for (const row of ingRows) {
+      const inputs = row.querySelectorAll("input");
+      if (inputs[1] && inputs[1].value.trim()) {
+        ingredients.push({ amount: inputs[0].value.trim(), name: inputs[1].value.trim() });
+      }
+    }
 
-        function todayKey() {
-            const d = new Date();
-            return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-        }
+    const stepRows = document.getElementById("stepRows").children;
+    const steps = [];
+    for (const row of stepRows) {
+      const ta = row.querySelector("textarea");
+      if (ta && ta.value.trim()) steps.push(ta.value.trim());
+    }
 
-        function dateKey(d) {
-            return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-        }
+    const recipe = {
+      id: Date.now().toString(),
+      title,
+      category: document.getElementById("fCat").value,
+      servings: Number(document.getElementById("fServings").value) || 1,
+      prepTime: document.getElementById("fPrepTime").value || "\u2013",
+      macros: {
+        kcal: Number(document.getElementById("fKcal").value) || 0,
+        protein: Number(document.getElementById("fProtein").value) || 0,
+        carbs: Number(document.getElementById("fCarbs").value) || 0,
+        fat: Number(document.getElementById("fFat").value) || 0
+      },
+      ingredients,
+      steps,
+      notes: document.getElementById("fNotes").value.trim(),
+      tags: document.getElementById("fTags").value.split(",").map(t => t.trim()).filter(Boolean)
+    };
 
-        function formatTime(iso) {
-            const d = new Date(iso);
-            return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
-        }
+    recipes.push(recipe);
+    saveRecipes();
+    view = "list";
+    render();
+  });
+}
 
-        function formatDate(dateStr) {
-            const [y, m, d] = dateStr.split('-');
-            return d + '.' + m + '.';
-        }
+function bindListEvents() {
+  // Search
+  const si = document.getElementById("searchInput");
+  if (si) si.addEventListener("input", (e) => { search = e.target.value; render(); });
 
-        const WEEKDAYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+  // Filters
+  document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => { filter = btn.dataset.cat; render(); });
+  });
 
-        // --- App State ---
-        let data = loadData();
-        let settings = loadSettings();
+  // Cards
+  document.querySelectorAll(".recipe-card").forEach(card => {
+    card.addEventListener("click", () => { selectedId = card.dataset.id; view = "detail"; render(); });
+  });
 
-        // --- DOM ---
-        const $todayCount = document.getElementById('todayCount');
-        const $goalBarFill = document.getElementById('goalBarFill');
-        const $goalText = document.getElementById('goalText');
-        const $logBtn = document.getElementById('logBtn');
-        const $undoBtn = document.getElementById('undoBtn');
-        const $todayEntries = document.getElementById('todayEntries');
-        const $headerDate = document.getElementById('headerDate');
-        const $goalInput = document.getElementById('goalInput');
-        const $priceInput = document.getElementById('priceInput');
-        const $packSizeInput = document.getElementById('packSizeInput');
+  // Add button
+  const addBtn = document.getElementById("addBtn");
+  if (addBtn) addBtn.addEventListener("click", () => { view = "add"; render(); });
 
-        // --- Navigation ---
-        document.querySelectorAll('.nav button').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-                btn.classList.add('active');
-                document.getElementById(btn.dataset.tab).classList.add('active');
-                if (btn.dataset.tab === 'stats') updateStats();
-            });
-        });
+  // Import button
+  const importBtn = document.getElementById("importBtn");
+  if (importBtn) importBtn.addEventListener("click", () => { importModalOpen = true; render(); });
 
-        // --- Header Date ---
-        function updateHeaderDate() {
-            const d = new Date();
-            const options = { weekday: 'long', day: 'numeric', month: 'long' };
-            $headerDate.textContent = d.toLocaleDateString('de-DE', options);
-        }
+  // Modal events
+  const modalCancel = document.getElementById("modalCancel");
+  if (modalCancel) modalCancel.addEventListener("click", () => { importModalOpen = false; render(); });
 
-        // --- Today View ---
-        function getTodayEntries() {
-            return data[todayKey()] || [];
-        }
+  const modalOverlay = document.getElementById("modalOverlay");
+  if (modalOverlay) modalOverlay.addEventListener("click", (e) => {
+    if (e.target === modalOverlay) { importModalOpen = false; render(); }
+  });
 
-        function updateTodayView() {
-            const entries = getTodayEntries();
-            const count = entries.length;
+  const modalImport = document.getElementById("modalImport");
+  if (modalImport) modalImport.addEventListener("click", () => {
+    const textarea = document.getElementById("importTextarea");
+    const msgEl = document.getElementById("importMsg");
+    try {
+      let parsed = JSON.parse(textarea.value);
+      if (!Array.isArray(parsed)) parsed = [parsed];
 
-            $todayCount.textContent = count;
+      let added = 0;
+      parsed.forEach(r => {
+        if (!r.title) return;
+        if (!r.id) r.id = Date.now().toString() + Math.random().toString(36).substr(2, 5);
+        if (!r.macros) r.macros = { kcal: 0, protein: 0, carbs: 0, fat: 0 };
+        if (!r.ingredients) r.ingredients = [];
+        if (!r.steps) r.steps = [];
+        if (!r.tags) r.tags = [];
+        if (!r.servings) r.servings = 1;
+        if (!r.prepTime) r.prepTime = "\u2013";
+        if (!r.category) r.category = "Abendessen";
+        if (!r.notes) r.notes = "";
+        recipes.push(r);
+        added++;
+      });
 
-            // Goal bar
-            const pct = Math.min((count / settings.goal) * 100, 100);
-            $goalBarFill.style.width = pct + '%';
-            $goalBarFill.className = 'goal-bar-fill';
-            if (pct >= 100) $goalBarFill.classList.add('danger');
-            else if (pct >= 75) $goalBarFill.classList.add('warning');
+      if (added > 0) {
+        saveRecipes();
+        msgEl.className = "modal-success";
+        msgEl.textContent = added + " Rezept" + (added > 1 ? "e" : "") + " importiert!";
+        setTimeout(() => { importModalOpen = false; render(); }, 1000);
+      } else {
+        msgEl.className = "modal-error";
+        msgEl.textContent = "Keine g\u00fcltigen Rezepte gefunden (Titel fehlt).";
+      }
+    } catch (err) {
+      msgEl.className = "modal-error";
+      msgEl.textContent = "Ung\u00fcltiges JSON: " + err.message;
+    }
+  });
+}
 
-            const remaining = Math.max(settings.goal - count, 0);
-            if (count >= settings.goal) {
-                $goalText.textContent = 'Tagesziel erreicht!';
-            } else {
-                $goalText.textContent = 'Noch ' + remaining + ' bis zum Tageslimit';
-            }
+// --- Init ---
+loadRecipes();
+render();
 
-            // Undo button
-            $undoBtn.style.display = count > 0 ? 'block' : 'none';
-
-            // Entry list
-            $todayEntries.innerHTML = '';
-            for (let i = entries.length - 1; i >= 0; i--) {
-                const el = document.createElement('div');
-                el.className = 'log-entry';
-                el.innerHTML = '<span class="time">' + formatTime(entries[i]) + '</span><span class="index">#' + (i + 1) + '</span>';
-                $todayEntries.appendChild(el);
-            }
-        }
-
-        // --- Log Cigarette ---
-        $logBtn.addEventListener('click', () => {
-            const key = todayKey();
-            if (!data[key]) data[key] = [];
-            data[key].push(new Date().toISOString());
-            saveData(data);
-
-            // Bump animation
-            $todayCount.classList.add('bump');
-            setTimeout(() => $todayCount.classList.remove('bump'), 150);
-
-            // Haptic feedback
-            if (navigator.vibrate) navigator.vibrate(30);
-
-            updateTodayView();
-        });
-
-        // --- Undo ---
-        $undoBtn.addEventListener('click', () => {
-            const key = todayKey();
-            if (data[key] && data[key].length > 0) {
-                data[key].pop();
-                if (data[key].length === 0) delete data[key];
-                saveData(data);
-                updateTodayView();
-            }
-        });
-
-        // --- Stats ---
-        function updateStats() {
-            const today = new Date();
-            const tk = todayKey();
-            const todayEntries = data[tk] || [];
-
-            // Today
-            document.getElementById('statToday').textContent = todayEntries.length;
-
-            // This week (Mon-Sun)
-            const dayOfWeek = (today.getDay() + 6) % 7; // Mon=0
-            let weekTotal = 0;
-            for (let i = 0; i <= dayOfWeek; i++) {
-                const d = new Date(today);
-                d.setDate(d.getDate() - i);
-                const entries = data[dateKey(d)] || [];
-                weekTotal += entries.length;
-            }
-            document.getElementById('statWeek').textContent = weekTotal;
-
-            // This month
-            let monthTotal = 0;
-            const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-            for (let d = new Date(firstOfMonth); d <= today; d.setDate(d.getDate() + 1)) {
-                const entries = data[dateKey(d)] || [];
-                monthTotal += entries.length;
-            }
-            document.getElementById('statMonth').textContent = monthTotal;
-
-            // All time total & average & best
-            const allDays = Object.keys(data).sort();
-            let total = 0;
-            let bestDay = Infinity;
-            allDays.forEach(k => {
-                const c = data[k].length;
-                total += c;
-                if (c < bestDay) bestDay = c;
-            });
-            document.getElementById('statTotal').textContent = total;
-            document.getElementById('statAvg').textContent = allDays.length > 0
-                ? (total / allDays.length).toFixed(1)
-                : '0';
-            document.getElementById('statBest').textContent = allDays.length > 0 ? bestDay : '0';
-
-            // Money
-            const pricePerCig = settings.price / settings.packSize;
-            const monthMoney = (monthTotal * pricePerCig).toFixed(2).replace('.', ',');
-            const totalMoney = (total * pricePerCig).toFixed(2).replace('.', ',');
-            document.getElementById('moneyMonth').textContent = monthMoney + ' \u20AC';
-            document.getElementById('moneyTotal').textContent = 'Gesamt: ' + totalMoney + ' \u20AC';
-
-            // Bar chart - last 14 days
-            const $barChart = document.getElementById('barChart');
-            $barChart.innerHTML = '';
-            const days = [];
-            for (let i = 13; i >= 0; i--) {
-                const d = new Date(today);
-                d.setDate(d.getDate() - i);
-                const k = dateKey(d);
-                const c = (data[k] || []).length;
-                days.push({ key: k, count: c, date: d });
-            }
-            const maxCount = Math.max(...days.map(d => d.count), 1);
-
-            days.forEach(day => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'bar-wrapper';
-                const val = document.createElement('div');
-                val.className = 'bar-value';
-                val.textContent = day.count || '';
-                const bar = document.createElement('div');
-                bar.className = 'bar';
-                bar.style.height = (day.count / maxCount * 130) + 'px';
-                const label = document.createElement('div');
-                label.className = 'bar-label';
-                label.textContent = WEEKDAYS[day.date.getDay()];
-                wrapper.appendChild(val);
-                wrapper.appendChild(bar);
-                wrapper.appendChild(label);
-                $barChart.appendChild(wrapper);
-            });
-        }
-
-        // --- Settings ---
-        $goalInput.value = settings.goal;
-        $priceInput.value = settings.price.toFixed(2);
-        $packSizeInput.value = settings.packSize;
-
-        $goalInput.addEventListener('change', () => {
-            settings.goal = parseInt($goalInput.value) || 20;
-            saveSettings(settings);
-            updateTodayView();
-        });
-
-        $priceInput.addEventListener('change', () => {
-            settings.price = parseFloat($priceInput.value) || 8.00;
-            saveSettings(settings);
-        });
-
-        $packSizeInput.addEventListener('change', () => {
-            settings.packSize = parseInt($packSizeInput.value) || 20;
-            saveSettings(settings);
-        });
-
-        // Export CSV
-        document.getElementById('exportBtn').addEventListener('click', () => {
-            let csv = 'Datum,Anzahl,Uhrzeiten\n';
-            Object.keys(data).sort().forEach(key => {
-                const entries = data[key];
-                const times = entries.map(e => formatTime(e)).join('; ');
-                csv += key + ',' + entries.length + ',"' + times + '"\n';
-            });
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'smokelog_export.csv';
-            a.click();
-            URL.revokeObjectURL(url);
-        });
-
-        // Reset
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            if (confirm('Wirklich alle Daten l\u00f6schen? Das kann nicht r\u00fcckg\u00e4ngig gemacht werden!')) {
-                data = {};
-                saveData(data);
-                updateTodayView();
-                updateStats();
-            }
-        });
-
-        // --- Init ---
-        updateHeaderDate();
-        updateTodayView();
-
-        // Auto-refresh at midnight
-        function msUntilMidnight() {
-            const now = new Date();
-            const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-            return midnight - now;
-        }
-        setTimeout(() => {
-            updateHeaderDate();
-            updateTodayView();
-        }, msUntilMidnight() + 1000);
-
-        // Register Service Worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js');
-        }
-    })();
-    </script>
+// Register Service Worker
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js").catch(() => {});
+}
+</script>
 </body>
 </html>
