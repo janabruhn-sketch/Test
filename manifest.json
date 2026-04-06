@@ -1,11 +1,11 @@
 {
-  "name": "Smoke Log - Zigaretten Tracker",
-  "short_name": "Smoke Log",
-  "description": "Tracke deinen Zigarettenkonsum",
+  "name": "Rezeptbuch - Deine Rezepte",
+  "short_name": "Rezeptbuch",
+  "description": "Dein persönliches Rezeptbuch mit einfachem Import aus Claude Chat",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#1a1a2e",
-  "theme_color": "#1a1a2e",
+  "background_color": "#F8F5F0",
+  "theme_color": "#E76F51",
   "orientation": "portrait",
   "icons": [
     {
