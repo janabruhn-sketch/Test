@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smokelog-v1';
+const CACHE_NAME = 'haushalt-v1';
 const ASSETS = ['/', '/index.html', '/manifest.json', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', event => {

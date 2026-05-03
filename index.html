@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Smoke Log">
-    <meta name="theme-color" content="#1a1a2e">
+    <meta name="apple-mobile-web-app-title" content="Haushalt">
+    <meta name="theme-color" content="#5c3d1e">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <title>Smoke Log - Zigaretten Tracker</title>
+    <title>Janas Haushalt-System</title>
     <style>
         * {
             margin: 0;
@@ -19,820 +19,932 @@
         }
 
         :root {
-            --bg: #1a1a2e;
-            --surface: #16213e;
-            --surface2: #0f3460;
-            --accent: #e94560;
-            --accent-light: #ff6b81;
-            --text: #eaeaea;
-            --text-dim: #8a8a9a;
-            --success: #2ecc71;
-            --warning: #f39c12;
-            --safe-top: env(safe-area-inset-top, 20px);
-            --safe-bottom: env(safe-area-inset-bottom, 20px);
+            --bg-1: #fdf6ee;
+            --bg-2: #f5efe6;
+            --header-1: #7a5c3a;
+            --header-2: #5c3d1e;
+            --header-text: #fdf0dc;
+            --header-sub: #d4b896;
+            --card-bg: #ffffff;
+            --card-border: #e8d8c4;
+            --text: #3a2e24;
+            --text-strong: #5a3820;
+            --text-mid: #5a4030;
+            --text-dim: #8b6340;
+            --text-faded: #a08060;
+            --accent: #c4956a;
+            --accent-soft: #fdf0dc;
+            --divider: #f5ede0;
+            --rot-color: #e07070;
+            --rot-bg: #fff5f5;
+            --rot-border: #f5c0c0;
+            --gelb-color: #c49a00;
+            --gelb-bg: #fffbf0;
+            --gelb-border: #f0d980;
+            --gruen-color: #4a9060;
+            --gruen-bg: #f4faf6;
+            --gruen-border: #a8d8b8;
+            --morgen: #8b6340;
+            --abend: #4a7090;
+            --boden: #5c8040;
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg);
+        html, body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 100%);
             color: var(--text);
             min-height: 100vh;
             overflow-x: hidden;
         }
 
-        /* Header */
+        body {
+            background-attachment: fixed;
+        }
+
         .header {
-            padding: calc(var(--safe-top) + 12px) 20px 12px;
-            background: var(--surface);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header h1 {
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: -0.3px;
-        }
-
-        .header-date {
-            font-size: 13px;
-            color: var(--text-dim);
-        }
-
-        /* Navigation */
-        .nav {
-            display: flex;
-            background: var(--surface);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding: 0 12px;
-        }
-
-        .nav button {
-            flex: 1;
-            background: none;
-            border: none;
-            color: var(--text-dim);
-            font-size: 13px;
-            font-weight: 600;
-            padding: 12px 8px;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s;
-        }
-
-        .nav button.active {
-            color: var(--accent);
-            border-bottom-color: var(--accent);
-        }
-
-        /* Sections */
-        .section {
-            display: none;
-            padding: 20px;
-            padding-bottom: calc(var(--safe-bottom) + 100px);
-        }
-
-        .section.active {
-            display: block;
-        }
-
-        /* Today Section */
-        .today-count {
+            background: linear-gradient(135deg, var(--header-1) 0%, var(--header-2) 100%);
+            padding: calc(var(--safe-top) + 24px) 24px 20px;
             text-align: center;
-            margin: 30px 0;
-        }
-
-        .today-count .number {
-            font-size: 96px;
-            font-weight: 800;
-            line-height: 1;
-            color: var(--accent);
-            transition: transform 0.15s;
-        }
-
-        .today-count .number.bump {
-            transform: scale(1.1);
-        }
-
-        .today-count .label {
-            font-size: 16px;
-            color: var(--text-dim);
-            margin-top: 8px;
-        }
-
-        .goal-bar {
-            background: rgba(255,255,255,0.05);
-            border-radius: 12px;
-            height: 8px;
-            margin: 0 20px 8px;
+            position: relative;
             overflow: hidden;
         }
 
-        .goal-bar-fill {
-            height: 100%;
-            border-radius: 12px;
-            transition: width 0.4s ease, background 0.4s;
-            background: var(--success);
+        .header::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 20% 50%, rgba(255,220,150,0.15) 0%, transparent 60%),
+                radial-gradient(circle at 80% 20%, rgba(255,200,100,0.1) 0%, transparent 50%);
+            pointer-events: none;
         }
 
-        .goal-bar-fill.warning {
-            background: var(--warning);
-        }
-
-        .goal-bar-fill.danger {
-            background: var(--accent);
-        }
-
-        .goal-text {
-            text-align: center;
-            font-size: 13px;
-            color: var(--text-dim);
-            margin-bottom: 30px;
-        }
-
-        .log-button {
-            display: block;
-            width: 160px;
-            height: 160px;
-            margin: 0 auto 30px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent), var(--accent-light));
-            border: none;
-            color: white;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 8px 32px rgba(233, 69, 96, 0.35);
-            transition: transform 0.15s, box-shadow 0.15s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .log-button:active {
-            transform: scale(0.93);
-            box-shadow: 0 4px 16px rgba(233, 69, 96, 0.25);
-        }
-
-        .log-button .icon {
-            font-size: 40px;
-        }
-
-        .undo-btn {
-            display: block;
-            margin: 0 auto 30px;
-            background: none;
-            border: 1px solid rgba(255,255,255,0.1);
-            color: var(--text-dim);
-            font-size: 13px;
-            padding: 8px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-        }
-
-        .undo-btn:active {
-            background: rgba(255,255,255,0.05);
-        }
-
-        /* Today's log list */
-        .today-log {
-            margin-top: 20px;
-        }
-
-        .today-log h3 {
-            font-size: 14px;
-            color: var(--text-dim);
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .log-entry {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 16px;
-            background: var(--surface);
-            border-radius: 12px;
-            margin-bottom: 8px;
-        }
-
-        .log-entry .time {
-            font-size: 15px;
-            font-weight: 600;
-        }
-
-        .log-entry .index {
-            font-size: 13px;
-            color: var(--text-dim);
-        }
-
-        /* Stats Section */
-        .stat-card {
-            background: var(--surface);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
-        }
-
-        .stat-card h3 {
-            font-size: 13px;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
-        }
-
-        .stat-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 16px;
-        }
-
-        .stat-item {
-            text-align: center;
-            flex: 1;
-        }
-
-        .stat-item .value {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--accent);
-        }
-
-        .stat-item .label {
-            font-size: 12px;
-            color: var(--text-dim);
-            margin-top: 2px;
-        }
-
-        /* Chart */
-        .chart-container {
-            width: 100%;
-            height: 200px;
+        .header .emoji-row {
+            font-size: 30px;
+            margin-bottom: 4px;
             position: relative;
         }
 
-        .chart-canvas {
-            width: 100%;
-            height: 100%;
+        .header h1 {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--header-text);
+            letter-spacing: 1px;
+            position: relative;
         }
 
-        /* History bars */
-        .bar-chart {
-            display: flex;
-            align-items: flex-end;
-            gap: 4px;
-            height: 160px;
-            padding: 0 4px;
-        }
-
-        .bar-wrapper {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100%;
-            justify-content: flex-end;
-        }
-
-        .bar {
-            width: 100%;
-            min-height: 2px;
-            background: linear-gradient(to top, var(--accent), var(--accent-light));
-            border-radius: 4px 4px 0 0;
-            transition: height 0.4s ease;
-        }
-
-        .bar-label {
-            font-size: 10px;
-            color: var(--text-dim);
-            margin-top: 6px;
-        }
-
-        .bar-value {
-            font-size: 11px;
-            font-weight: 700;
-            margin-bottom: 4px;
-            color: var(--text);
-        }
-
-        /* Settings Section */
-        .setting-group {
-            background: var(--surface);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
-        }
-
-        .setting-group h3 {
+        .header p {
+            margin: 6px 0 0;
             font-size: 13px;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 16px;
+            color: var(--header-sub);
+            font-style: italic;
+            position: relative;
         }
 
-        .setting-row {
+        .header .today-line {
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--header-sub);
+            font-style: normal;
+            position: relative;
+            letter-spacing: 0.3px;
+        }
+
+        .container {
+            padding: 16px;
+            max-width: 480px;
+            margin: 0 auto;
+            padding-bottom: calc(var(--safe-bottom) + 32px);
+        }
+
+        .section {
+            background: var(--card-bg);
+            border-radius: 14px;
+            border: 1.5px solid var(--card-border);
+            padding: 14px 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 8px rgba(180,140,90,0.07);
+        }
+
+        .section-head {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 10px;
         }
 
-        .setting-row label {
-            font-size: 15px;
-            font-weight: 500;
-        }
+        .section-head.has-sub { margin-bottom: 2px; }
 
-        .setting-row input[type="number"] {
-            width: 80px;
-            background: var(--bg);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: var(--text);
+        .section-head .icon {
             font-size: 18px;
-            font-weight: 700;
-            text-align: center;
-            padding: 8px;
-            border-radius: 10px;
-            -webkit-appearance: none;
         }
 
-        .danger-zone button {
-            width: 100%;
-            padding: 14px;
-            background: rgba(233, 69, 96, 0.1);
-            border: 1px solid rgba(233, 69, 96, 0.3);
-            color: var(--accent);
+        .section-head h2 {
             font-size: 15px;
-            font-weight: 600;
+            font-weight: bold;
+            color: var(--text-strong);
+            flex: 1;
+        }
+
+        .section-sub {
+            margin: 0 0 10px 26px;
+            font-size: 11px;
+            color: var(--text-faded);
+            font-style: italic;
+        }
+
+        .energy-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .energy-btn {
+            flex: 1;
+            min-width: 90px;
+            padding: 10px 6px;
             border-radius: 12px;
+            border: 2px solid;
+            background: var(--card-bg);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: inherit;
+        }
+
+        .energy-btn.rot { color: var(--rot-color); border-color: var(--rot-border); }
+        .energy-btn.gelb { color: var(--gelb-color); border-color: var(--gelb-border); }
+        .energy-btn.gruen { color: var(--gruen-color); border-color: var(--gruen-border); }
+
+        .energy-btn.active.rot {
+            background: var(--rot-bg);
+            border-color: var(--rot-color);
+            box-shadow: 0 2px 8px var(--rot-border);
+            font-weight: bold;
+        }
+        .energy-btn.active.gelb {
+            background: var(--gelb-bg);
+            border-color: var(--gelb-color);
+            box-shadow: 0 2px 8px var(--gelb-border);
+            font-weight: bold;
+        }
+        .energy-btn.active.gruen {
+            background: var(--gruen-bg);
+            border-color: var(--gruen-color);
+            box-shadow: 0 2px 8px var(--gruen-border);
+            font-weight: bold;
+        }
+
+        .energy-program {
+            margin-top: 12px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid;
+            display: none;
+        }
+
+        .energy-program.active { display: block; }
+
+        .energy-program.rot { background: var(--rot-bg); border-color: var(--rot-border); }
+        .energy-program.gelb { background: var(--gelb-bg); border-color: var(--gelb-border); }
+        .energy-program.gruen { background: var(--gruen-bg); border-color: var(--gruen-border); }
+
+        .energy-program .title {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+        .energy-program.rot .title { color: var(--rot-color); }
+        .energy-program.gelb .title { color: var(--gelb-color); }
+        .energy-program.gruen .title { color: var(--gruen-color); }
+
+        .energy-program .item {
+            font-size: 13px;
+            color: var(--text-mid);
+            padding: 2px 0;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 4px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--divider);
+            transition: background 0.1s;
+            user-select: none;
+        }
+
+        .check-item:last-of-type { border-bottom: none; }
+        .check-item:active { background: var(--bg-1); }
+
+        .check-box {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            flex-shrink: 0;
+            border: 2px solid #d0c0a8;
+            background: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+
+        .check-box::after {
+            content: '✓';
+            color: var(--card-bg);
+            font-size: 13px;
+            line-height: 1;
+            opacity: 0;
+            font-family: -apple-system, sans-serif;
+            font-weight: bold;
+        }
+
+        .check-item.checked .check-box::after { opacity: 1; }
+
+        .check-item.checked .check-box {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        .check-item[data-accent="morgen"].checked .check-box { background: var(--morgen); border-color: var(--morgen); }
+        .check-item[data-accent="abend"].checked .check-box { background: var(--abend); border-color: var(--abend); }
+        .check-item[data-accent="boden"].checked .check-box { background: var(--boden); border-color: var(--boden); }
+
+        .check-label {
+            font-size: 14px;
+            color: var(--text);
+            transition: all 0.15s;
+            flex: 1;
+        }
+
+        .check-item.checked .check-label {
+            color: var(--text-faded);
+            text-decoration: line-through;
+        }
+
+        .footnote {
+            font-size: 11px;
+            color: var(--text-faded);
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .zone-card { margin-bottom: 8px; }
+
+        .zone-header {
+            width: 100%;
+            text-align: left;
+            padding: 11px 14px;
+            border-radius: 10px;
+            border: 1.5px solid var(--card-border);
+            background: var(--card-bg);
+            cursor: pointer;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.15s;
+        }
+
+        .zone-card.open .zone-header {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+            border-radius: 10px 10px 0 0;
+            border-bottom-color: transparent;
+        }
+
+        .zone-icon { font-size: 20px; }
+        .zone-name {
+            font-weight: bold;
+            font-size: 14px;
+            color: var(--text-strong);
+            flex: 1;
+        }
+        .zone-count {
+            font-size: 12px;
+            color: var(--text-faded);
+        }
+        .zone-arrow {
+            color: var(--accent);
+            font-size: 12px;
+            margin-left: 4px;
+        }
+
+        .zone-tasks {
+            display: none;
+            padding: 6px 14px 12px;
+            background: var(--card-bg);
+            border-radius: 0 0 10px 10px;
+            border: 1.5px solid var(--accent);
+            border-top: none;
+        }
+
+        .zone-card.open .zone-tasks { display: block; }
+
+        .zone-timer-hint {
+            margin-top: 10px;
+            padding: 8px 10px;
+            background: var(--bg-1);
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Wochenplan grid */
+        .wp-wrap { overflow-x: auto; }
+
+        .wp-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+
+        .wp-table th {
+            padding: 6px 4px;
+            color: var(--text-dim);
+            font-weight: normal;
+            text-align: center;
+            font-size: 11px;
+        }
+
+        .wp-table th.zone-col {
+            text-align: left;
+            padding-left: 4px;
+        }
+
+        .wp-table th.today { color: var(--accent); font-weight: bold; }
+
+        .wp-table td {
+            padding: 5px 2px;
+            text-align: center;
+        }
+
+        .wp-table td.zone-cell {
+            text-align: left;
+            font-size: 12px;
+            color: var(--text);
+            padding: 5px 4px;
+            white-space: nowrap;
+        }
+
+        .wp-table td.today-col {
+            background: rgba(196, 149, 106, 0.08);
+        }
+
+        .wp-cell {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            border: 1.5px solid #e0d0b8;
+            background: var(--card-bg);
+            cursor: pointer;
+            font-size: 11px;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            font-family: -apple-system, sans-serif;
+            font-weight: bold;
+            transition: all 0.15s;
+        }
+
+        .wp-cell.checked {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .wp-legend {
+            margin-top: 10px;
+            font-size: 11px;
+            color: var(--text-faded);
+            font-style: italic;
+            text-align: center;
+        }
+
+        .reset-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .reset-btn {
+            flex: 1;
+            padding: 9px 10px;
+            border: 1px solid var(--card-border);
+            background: var(--card-bg);
+            color: var(--text-dim);
+            font-family: inherit;
+            font-size: 12px;
+            border-radius: 8px;
             cursor: pointer;
         }
 
-        .danger-zone button:active {
-            background: rgba(233, 69, 96, 0.2);
+        .reset-btn:active {
+            background: var(--bg-1);
         }
 
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .log-entry {
-            animation: fadeIn 0.25s ease;
-        }
-
-        /* Money saved card */
-        .money-card {
-            background: linear-gradient(135deg, var(--surface2), var(--surface));
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
+        .mantra {
             text-align: center;
-        }
-
-        .money-card .amount {
-            font-size: 36px;
-            font-weight: 800;
-            color: var(--success);
-        }
-
-        .money-card .sublabel {
+            padding: 20px 16px 24px;
+            color: var(--text-faded);
             font-size: 13px;
-            color: var(--text-dim);
+            font-style: italic;
+            border-top: 1px solid var(--card-border);
+            margin-top: 8px;
+        }
+
+        .mantra .source {
+            font-size: 11px;
             margin-top: 4px;
+            color: #c4a880;
         }
 
-        .price-input-row {
+        .progress-summary {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            gap: 6px;
+            margin-top: 8px;
+            font-size: 11px;
+            color: var(--text-faded);
+            justify-content: center;
         }
 
-        .price-input-row span {
-            font-size: 15px;
-            color: var(--text-dim);
+        .progress-summary .pill {
+            padding: 3px 9px;
+            background: var(--bg-1);
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Smoke Log</h1>
-        <div class="header-date" id="headerDate"></div>
+        <div class="emoji-row">🏠 🐱 🐱 🐱 🐱</div>
+        <h1>Janas Haushalt-System</h1>
+        <p>Klein anfangen. Jeden Tag. Reicht.</p>
+        <div class="today-line" id="todayLine"></div>
     </div>
 
-    <div class="nav">
-        <button class="active" data-tab="today">Heute</button>
-        <button data-tab="stats">Statistik</button>
-        <button data-tab="settings">Einstellungen</button>
-    </div>
+    <div class="container">
 
-    <!-- TODAY -->
-    <div class="section active" id="today">
-        <div class="today-count">
-            <div class="number" id="todayCount">0</div>
-            <div class="label">Zigaretten heute</div>
-        </div>
-
-        <div class="goal-bar"><div class="goal-bar-fill" id="goalBarFill"></div></div>
-        <div class="goal-text" id="goalText"></div>
-
-        <button class="log-button" id="logBtn">
-            <span class="icon">+</span>
-            <span>Eintragen</span>
-        </button>
-
-        <button class="undo-btn" id="undoBtn" style="display:none;">Letzte entfernen</button>
-
-        <div class="today-log" id="todayLog">
-            <h3>Heutige Eintr&auml;ge</h3>
-            <div id="todayEntries"></div>
-        </div>
-    </div>
-
-    <!-- STATS -->
-    <div class="section" id="stats">
-        <div class="stat-card">
-            <h3>Zusammenfassung</h3>
-            <div class="stat-row">
-                <div class="stat-item">
-                    <div class="value" id="statToday">0</div>
-                    <div class="label">Heute</div>
-                </div>
-                <div class="stat-item">
-                    <div class="value" id="statWeek">0</div>
-                    <div class="label">Diese Woche</div>
-                </div>
-                <div class="stat-item">
-                    <div class="value" id="statMonth">0</div>
-                    <div class="label">Dieser Monat</div>
-                </div>
+        <div class="section">
+            <div class="section-head">
+                <span class="icon">⚡</span>
+                <h2>Wie ist dein Saft heute?</h2>
             </div>
-            <div class="stat-row">
-                <div class="stat-item">
-                    <div class="value" id="statAvg">0</div>
-                    <div class="label">Schnitt/Tag</div>
-                </div>
-                <div class="stat-item">
-                    <div class="value" id="statBest">0</div>
-                    <div class="label">Bester Tag</div>
-                </div>
-                <div class="stat-item">
-                    <div class="value" id="statTotal">0</div>
-                    <div class="label">Gesamt</div>
-                </div>
+            <div class="energy-row">
+                <button class="energy-btn rot" data-energy="rot">🔴 Kein Saft</button>
+                <button class="energy-btn gelb" data-energy="gelb">🟡 Mittel</button>
+                <button class="energy-btn gruen" data-energy="gruen">🟢 Viel Energie</button>
+            </div>
+            <div class="energy-program" id="energyProgram">
+                <div class="title">Dein Programm heute:</div>
+                <div id="energyItems"></div>
             </div>
         </div>
 
-        <div class="money-card">
-            <div class="sublabel">Ausgaben diesen Monat</div>
-            <div class="amount" id="moneyMonth">0,00 &euro;</div>
-            <div class="sublabel" id="moneyTotal" style="margin-top:12px;"></div>
+        <div class="section">
+            <div class="section-head has-sub">
+                <span class="icon">🌅</span>
+                <h2>Morgen-Anker</h2>
+            </div>
+            <div class="section-sub">läuft schon – nur abhaken</div>
+            <div id="morgenList"></div>
+            <div class="footnote">≈ 10–12 Min · direkt nach dem Aufstehen</div>
         </div>
 
-        <div class="stat-card">
-            <h3>Letzte 14 Tage</h3>
-            <div class="bar-chart" id="barChart"></div>
+        <div class="section">
+            <div class="section-head has-sub">
+                <span class="icon">🌙</span>
+                <h2>Abend-Anker</h2>
+            </div>
+            <div class="section-sub">nach der Arbeit, kurz bevor du auf die Couch fällst</div>
+            <div id="abendList"></div>
+            <div class="footnote">≈ 5–8 Min · kein Timer nötig</div>
         </div>
-    </div>
 
-    <!-- SETTINGS -->
-    <div class="section" id="settings">
-        <div class="setting-group">
-            <h3>Tagesziel</h3>
-            <div class="setting-row">
-                <label>Max. Zigaretten/Tag</label>
-                <input type="number" id="goalInput" min="1" max="100" value="20">
+        <div class="section">
+            <div class="section-head has-sub">
+                <span class="icon">🧹</span>
+                <h2>Wischböden gesamt</h2>
+            </div>
+            <div class="section-sub">2× pro Woche · 15 Min · Energiestufe 🟡 reicht</div>
+            <div id="bodenList"></div>
+            <div class="footnote">Nicht wochentag-gebunden – wann Energie da ist</div>
+        </div>
+
+        <div class="section">
+            <div class="section-head has-sub">
+                <span class="icon">🗺️</span>
+                <h2>Zonen · 15 Min Timer</h2>
+            </div>
+            <div class="section-sub">1–2 pro Tag je nach Energie · kein fester Plan</div>
+            <div id="zonesList"></div>
+        </div>
+
+        <div class="section">
+            <div class="section-head has-sub">
+                <span class="icon">📅</span>
+                <h2>Diese Woche</h2>
+            </div>
+            <div class="section-sub">Häkchen = "Zone an dem Tag erledigt" · auch nachträglich antippen</div>
+            <div class="wp-wrap">
+                <table class="wp-table" id="wpTable"></table>
+            </div>
+            <div class="wp-legend" id="wpLegend"></div>
+            <div class="reset-row">
+                <button class="reset-btn" id="resetTodayBtn">Heute zurücksetzen</button>
+                <button class="reset-btn" id="resetWeekBtn">Woche zurücksetzen</button>
             </div>
         </div>
 
-        <div class="setting-group">
-            <h3>Kosten</h3>
-            <div class="setting-row">
-                <label>Preis pro Schachtel</label>
-                <div class="price-input-row">
-                    <input type="number" id="priceInput" min="0" step="0.10" value="8.00">
-                    <span>&euro;</span>
-                </div>
-            </div>
-            <div class="setting-row">
-                <label>Zigaretten pro Schachtel</label>
-                <input type="number" id="packSizeInput" min="1" max="50" value="20">
-            </div>
+        <div class="mantra">
+            "Unvollständig gemacht schützt das Zuhause besser als perfekt geplant."
+            <div class="source">nach FlyLady · angepasst für Jana</div>
         </div>
 
-        <div class="setting-group danger-zone">
-            <h3>Daten</h3>
-            <button id="exportBtn">Daten exportieren (CSV)</button>
-            <div style="height:12px;"></div>
-            <button id="resetBtn">Alle Daten l&ouml;schen</button>
-        </div>
     </div>
 
     <script>
     (function() {
         'use strict';
 
-        // --- Data Layer ---
-        const STORAGE_KEY = 'smokelog_data';
-        const SETTINGS_KEY = 'smokelog_settings';
+        const STORAGE_KEY = 'haushalt_data_v1';
 
-        function loadData() {
+        const ZONES = [
+            { id: 1, name: 'Küche', icon: '🍳', tasks: ['Arbeitsflächen wischen', 'Herd abwischen', 'Schränke außen', 'Boden wischen'] },
+            { id: 2, name: 'Bad + WC + Flur', icon: '🚿', tasks: ['Waschbecken + Spiegel', 'Dusche/Wanne', 'WC-Becken', 'Flurboden'] },
+            { id: 3, name: 'Wohnzimmer', icon: '🛋️', tasks: ['Staub wischen', 'Kissen/Decken ordnen', 'Boden saugen', 'Fensterbank'] },
+            { id: 4, name: 'Nähzimmer', icon: '🧵', tasks: ['Nähtisch freiräumen', 'Stoffe sortieren', 'Boden saugen', 'Ablage ordnen'] },
+            { id: 5, name: 'Katzenbereiche', icon: '🐱', tasks: ['Kratzbäume abklopfen', 'Schlafplätze checken', 'Futterstellen wischen', 'Spielzeug sortieren'] }
+        ];
+
+        const WEEKDAYS = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+
+        const MORGEN = ['Klos ausmisten (beide)', 'Müll raus', 'Futter + Wasser'];
+        const ABEND = ['Böden-Spotcheck (inkont. Katze)', '1 Oberfläche Küche wischen', 'Futter + Wasser'];
+
+        const ENERGY_TASKS = {
+            rot: ['Nur Morgen-Anker', 'Nur Abend-Anker'],
+            gelb: ['Morgen-Anker', 'Abend-Anker', '1 Zone × 15 Min', 'Wischboden-Runde (15 Min)'],
+            gruen: ['Morgen-Anker', 'Abend-Anker', '2 Zonen × 15 Min', 'Wischboden-Runde (15 Min)', 'Sonderthema optional']
+        };
+
+        // --- Date helpers ---
+        function pad2(n) { return String(n).padStart(2, '0'); }
+
+        function todayKey(d) {
+            d = d || new Date();
+            return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+        }
+
+        function weekdayMonFirst(d) {
+            // 0 = Mo, 6 = So
+            return (d.getDay() + 6) % 7;
+        }
+
+        function isoWeekKey(d) {
+            d = d || new Date();
+            // Copy date so we don't mutate
+            const target = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            const dayNr = (target.getUTCDay() + 6) % 7;
+            target.setUTCDate(target.getUTCDate() - dayNr + 3);
+            const firstThursday = new Date(Date.UTC(target.getUTCFullYear(), 0, 4));
+            const week = 1 + Math.round(((target - firstThursday) / 86400000 - 3 + ((firstThursday.getUTCDay() + 6) % 7)) / 7);
+            return target.getUTCFullYear() + '-W' + pad2(week);
+        }
+
+        function formatLongDate(d) {
+            return d.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' });
+        }
+
+        // --- Storage ---
+        function loadAll() {
             try {
-                return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-            } catch { return {}; }
+                return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { daily: {}, weekly: {} };
+            } catch { return { daily: {}, weekly: {} }; }
         }
 
-        function saveData(data) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        function saveAll() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         }
 
-        function loadSettings() {
-            try {
-                return JSON.parse(localStorage.getItem(SETTINGS_KEY)) || { goal: 20, price: 8.00, packSize: 20 };
-            } catch { return { goal: 20, price: 8.00, packSize: 20 }; }
+        function getDay(key) {
+            if (!state.daily[key]) {
+                state.daily[key] = {
+                    energie: null,
+                    morgen: MORGEN.map(() => false),
+                    abend: ABEND.map(() => false),
+                    zones: {}
+                };
+            }
+            // Backwards-fill in case task counts changed
+            const day = state.daily[key];
+            if (day.morgen.length !== MORGEN.length) {
+                while (day.morgen.length < MORGEN.length) day.morgen.push(false);
+                day.morgen.length = MORGEN.length;
+            }
+            if (day.abend.length !== ABEND.length) {
+                while (day.abend.length < ABEND.length) day.abend.push(false);
+                day.abend.length = ABEND.length;
+            }
+            return day;
         }
 
-        function saveSettings(s) {
-            localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+        function getWeek(key) {
+            if (!state.weekly[key]) {
+                state.weekly[key] = {
+                    boden: [false, false],
+                    wochenplan: {}
+                };
+            }
+            return state.weekly[key];
         }
 
-        function todayKey() {
-            const d = new Date();
-            return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+        // Cleanup: keep only last 90 days of daily, last 12 weeks of weekly
+        function pruneOld() {
+            const now = new Date();
+            const ninetyAgo = new Date(now);
+            ninetyAgo.setDate(now.getDate() - 90);
+            Object.keys(state.daily).forEach(k => {
+                const parts = k.split('-');
+                const d = new Date(+parts[0], +parts[1] - 1, +parts[2]);
+                if (d < ninetyAgo) delete state.daily[k];
+            });
+            const weekKeys = Object.keys(state.weekly).sort();
+            while (weekKeys.length > 12) {
+                delete state.weekly[weekKeys.shift()];
+            }
         }
 
-        function dateKey(d) {
-            return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+        // --- State ---
+        let state = loadAll();
+        pruneOld();
+
+        let currentDayKey = todayKey();
+        let currentWeekKey = isoWeekKey();
+        let currentWeekday = weekdayMonFirst(new Date());
+
+        // --- Render ---
+        function renderHeader() {
+            document.getElementById('todayLine').textContent = formatLongDate(new Date());
         }
 
-        function formatTime(iso) {
-            const d = new Date(iso);
-            return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+        function renderEnergy() {
+            const day = getDay(currentDayKey);
+            document.querySelectorAll('.energy-btn').forEach(btn => {
+                btn.classList.toggle('active', day.energie === btn.dataset.energy);
+            });
+            const programEl = document.getElementById('energyProgram');
+            programEl.classList.remove('rot', 'gelb', 'gruen', 'active');
+            const itemsEl = document.getElementById('energyItems');
+            itemsEl.innerHTML = '';
+            if (day.energie) {
+                programEl.classList.add(day.energie, 'active');
+                ENERGY_TASKS[day.energie].forEach(t => {
+                    const div = document.createElement('div');
+                    div.className = 'item';
+                    div.textContent = '→ ' + t;
+                    itemsEl.appendChild(div);
+                });
+            }
         }
 
-        function formatDate(dateStr) {
-            const [y, m, d] = dateStr.split('-');
-            return d + '.' + m + '.';
+        function renderCheckList(containerId, items, getArr, accent) {
+            const c = document.getElementById(containerId);
+            c.innerHTML = '';
+            const arr = getArr();
+            items.forEach((label, i) => {
+                const row = document.createElement('div');
+                row.className = 'check-item' + (arr[i] ? ' checked' : '');
+                if (accent) row.dataset.accent = accent;
+                row.innerHTML = '<div class="check-box"></div><div class="check-label"></div>';
+                row.querySelector('.check-label').textContent = label;
+                row.addEventListener('click', () => {
+                    const a = getArr();
+                    a[i] = !a[i];
+                    saveAll();
+                    row.classList.toggle('checked', a[i]);
+                });
+                c.appendChild(row);
+            });
         }
 
-        const WEEKDAYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+        function renderMorgen() {
+            renderCheckList('morgenList', MORGEN, () => getDay(currentDayKey).morgen, 'morgen');
+        }
 
-        // --- App State ---
-        let data = loadData();
-        let settings = loadSettings();
+        function renderAbend() {
+            renderCheckList('abendList', ABEND, () => getDay(currentDayKey).abend, 'abend');
+        }
 
-        // --- DOM ---
-        const $todayCount = document.getElementById('todayCount');
-        const $goalBarFill = document.getElementById('goalBarFill');
-        const $goalText = document.getElementById('goalText');
-        const $logBtn = document.getElementById('logBtn');
-        const $undoBtn = document.getElementById('undoBtn');
-        const $todayEntries = document.getElementById('todayEntries');
-        const $headerDate = document.getElementById('headerDate');
-        const $goalInput = document.getElementById('goalInput');
-        const $priceInput = document.getElementById('priceInput');
-        const $packSizeInput = document.getElementById('packSizeInput');
+        function renderBoden() {
+            renderCheckList('bodenList', ['Runde 1 diese Woche', 'Runde 2 diese Woche'], () => getWeek(currentWeekKey).boden, 'boden');
+        }
 
-        // --- Navigation ---
-        document.querySelectorAll('.nav button').forEach(btn => {
+        function renderZones() {
+            const c = document.getElementById('zonesList');
+            c.innerHTML = '';
+            const day = getDay(currentDayKey);
+            ZONES.forEach(zone => {
+                const card = document.createElement('div');
+                card.className = 'zone-card';
+
+                const header = document.createElement('button');
+                header.className = 'zone-header';
+                header.type = 'button';
+                const doneCount = zone.tasks.filter((_, ti) => day.zones[zone.id + '-' + ti]).length;
+
+                header.innerHTML =
+                    '<span class="zone-icon"></span>' +
+                    '<span class="zone-name"></span>' +
+                    '<span class="zone-count"></span>' +
+                    '<span class="zone-arrow">▼</span>';
+                header.querySelector('.zone-icon').textContent = zone.icon;
+                header.querySelector('.zone-name').textContent = zone.name;
+                header.querySelector('.zone-count').textContent = doneCount + '/' + zone.tasks.length + ' ✓';
+
+                const tasks = document.createElement('div');
+                tasks.className = 'zone-tasks';
+
+                zone.tasks.forEach((task, ti) => {
+                    const key = zone.id + '-' + ti;
+                    const row = document.createElement('div');
+                    row.className = 'check-item' + (day.zones[key] ? ' checked' : '');
+                    row.innerHTML = '<div class="check-box"></div><div class="check-label"></div>';
+                    row.querySelector('.check-label').textContent = task;
+                    row.addEventListener('click', () => {
+                        day.zones[key] = !day.zones[key];
+                        if (!day.zones[key]) delete day.zones[key];
+                        // Auto-mark today's wochenplan cell when first task in this zone is checked
+                        const week = getWeek(currentWeekKey);
+                        const wpKey = WEEKDAYS[currentWeekday] + '-' + zone.id;
+                        const stillAny = zone.tasks.some((_, idx) => day.zones[zone.id + '-' + idx]);
+                        if (stillAny) week.wochenplan[wpKey] = true;
+                        saveAll();
+                        row.classList.toggle('checked', !!day.zones[key]);
+                        const newCount = zone.tasks.filter((_, idx) => day.zones[zone.id + '-' + idx]).length;
+                        header.querySelector('.zone-count').textContent = newCount + '/' + zone.tasks.length + ' ✓';
+                        renderWochenplan();
+                    });
+                    tasks.appendChild(row);
+                });
+
+                const hint = document.createElement('div');
+                hint.className = 'zone-timer-hint';
+                hint.textContent = '⏱️ Timer auf 15 Min · was fertig wird, wird fertig';
+                tasks.appendChild(hint);
+
+                header.addEventListener('click', () => {
+                    card.classList.toggle('open');
+                    header.querySelector('.zone-arrow').textContent = card.classList.contains('open') ? '▲' : '▼';
+                });
+
+                card.appendChild(header);
+                card.appendChild(tasks);
+                c.appendChild(card);
+            });
+        }
+
+        function renderWochenplan() {
+            const week = getWeek(currentWeekKey);
+            const table = document.getElementById('wpTable');
+            table.innerHTML = '';
+
+            const thead = document.createElement('thead');
+            const trh = document.createElement('tr');
+            const thZone = document.createElement('th');
+            thZone.className = 'zone-col';
+            thZone.textContent = 'Zone';
+            trh.appendChild(thZone);
+            WEEKDAYS.forEach((tag, idx) => {
+                const th = document.createElement('th');
+                th.textContent = tag;
+                if (idx === currentWeekday) th.classList.add('today');
+                trh.appendChild(th);
+            });
+            thead.appendChild(trh);
+            table.appendChild(thead);
+
+            const tbody = document.createElement('tbody');
+            ZONES.forEach(zone => {
+                const tr = document.createElement('tr');
+                const tdZone = document.createElement('td');
+                tdZone.className = 'zone-cell';
+                tdZone.textContent = zone.icon + ' ' + zone.name;
+                tr.appendChild(tdZone);
+
+                WEEKDAYS.forEach((tag, idx) => {
+                    const td = document.createElement('td');
+                    if (idx === currentWeekday) td.classList.add('today-col');
+                    const key = tag + '-' + zone.id;
+                    const cell = document.createElement('button');
+                    cell.type = 'button';
+                    cell.className = 'wp-cell' + (week.wochenplan[key] ? ' checked' : '');
+                    cell.textContent = '✓';
+                    cell.addEventListener('click', () => {
+                        if (week.wochenplan[key]) {
+                            delete week.wochenplan[key];
+                        } else {
+                            week.wochenplan[key] = true;
+                        }
+                        saveAll();
+                        cell.classList.toggle('checked', !!week.wochenplan[key]);
+                        updateWpLegend();
+                    });
+                    td.appendChild(cell);
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+            updateWpLegend();
+        }
+
+        function updateWpLegend() {
+            const week = getWeek(currentWeekKey);
+            const total = Object.keys(week.wochenplan).length;
+            const todayDone = ZONES.filter(z => week.wochenplan[WEEKDAYS[currentWeekday] + '-' + z.id]).length;
+            document.getElementById('wpLegend').textContent =
+                'Heute: ' + todayDone + ' Zone' + (todayDone === 1 ? '' : 'n') +
+                ' · diese Woche gesamt: ' + total + ' Häkchen';
+        }
+
+        function renderAll() {
+            renderHeader();
+            renderEnergy();
+            renderMorgen();
+            renderAbend();
+            renderBoden();
+            renderZones();
+            renderWochenplan();
+        }
+
+        // --- Energy click handlers ---
+        document.querySelectorAll('.energy-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-                btn.classList.add('active');
-                document.getElementById(btn.dataset.tab).classList.add('active');
-                if (btn.dataset.tab === 'stats') updateStats();
+                const day = getDay(currentDayKey);
+                const val = btn.dataset.energy;
+                day.energie = (day.energie === val) ? null : val;
+                saveAll();
+                renderEnergy();
             });
         });
 
-        // --- Header Date ---
-        function updateHeaderDate() {
-            const d = new Date();
-            const options = { weekday: 'long', day: 'numeric', month: 'long' };
-            $headerDate.textContent = d.toLocaleDateString('de-DE', options);
-        }
+        // --- Reset buttons ---
+        document.getElementById('resetTodayBtn').addEventListener('click', () => {
+            if (!confirm('Heutige Häkchen (Energie, Morgen-, Abend-Anker, Zonen) zurücksetzen?')) return;
+            delete state.daily[currentDayKey];
+            saveAll();
+            renderAll();
+        });
 
-        // --- Today View ---
-        function getTodayEntries() {
-            return data[todayKey()] || [];
-        }
+        document.getElementById('resetWeekBtn').addEventListener('click', () => {
+            if (!confirm('Wochenplan und Wischböden dieser Woche zurücksetzen?')) return;
+            delete state.weekly[currentWeekKey];
+            saveAll();
+            renderAll();
+        });
 
-        function updateTodayView() {
-            const entries = getTodayEntries();
-            const count = entries.length;
-
-            $todayCount.textContent = count;
-
-            // Goal bar
-            const pct = Math.min((count / settings.goal) * 100, 100);
-            $goalBarFill.style.width = pct + '%';
-            $goalBarFill.className = 'goal-bar-fill';
-            if (pct >= 100) $goalBarFill.classList.add('danger');
-            else if (pct >= 75) $goalBarFill.classList.add('warning');
-
-            const remaining = Math.max(settings.goal - count, 0);
-            if (count >= settings.goal) {
-                $goalText.textContent = 'Tagesziel erreicht!';
-            } else {
-                $goalText.textContent = 'Noch ' + remaining + ' bis zum Tageslimit';
-            }
-
-            // Undo button
-            $undoBtn.style.display = count > 0 ? 'block' : 'none';
-
-            // Entry list
-            $todayEntries.innerHTML = '';
-            for (let i = entries.length - 1; i >= 0; i--) {
-                const el = document.createElement('div');
-                el.className = 'log-entry';
-                el.innerHTML = '<span class="time">' + formatTime(entries[i]) + '</span><span class="index">#' + (i + 1) + '</span>';
-                $todayEntries.appendChild(el);
+        // --- Day rollover check ---
+        function checkRollover() {
+            const newDay = todayKey();
+            const newWeek = isoWeekKey();
+            const newWd = weekdayMonFirst(new Date());
+            if (newDay !== currentDayKey || newWeek !== currentWeekKey || newWd !== currentWeekday) {
+                currentDayKey = newDay;
+                currentWeekKey = newWeek;
+                currentWeekday = newWd;
+                renderAll();
             }
         }
 
-        // --- Log Cigarette ---
-        $logBtn.addEventListener('click', () => {
-            const key = todayKey();
-            if (!data[key]) data[key] = [];
-            data[key].push(new Date().toISOString());
-            saveData(data);
-
-            // Bump animation
-            $todayCount.classList.add('bump');
-            setTimeout(() => $todayCount.classList.remove('bump'), 150);
-
-            // Haptic feedback
-            if (navigator.vibrate) navigator.vibrate(30);
-
-            updateTodayView();
-        });
-
-        // --- Undo ---
-        $undoBtn.addEventListener('click', () => {
-            const key = todayKey();
-            if (data[key] && data[key].length > 0) {
-                data[key].pop();
-                if (data[key].length === 0) delete data[key];
-                saveData(data);
-                updateTodayView();
-            }
-        });
-
-        // --- Stats ---
-        function updateStats() {
-            const today = new Date();
-            const tk = todayKey();
-            const todayEntries = data[tk] || [];
-
-            // Today
-            document.getElementById('statToday').textContent = todayEntries.length;
-
-            // This week (Mon-Sun)
-            const dayOfWeek = (today.getDay() + 6) % 7; // Mon=0
-            let weekTotal = 0;
-            for (let i = 0; i <= dayOfWeek; i++) {
-                const d = new Date(today);
-                d.setDate(d.getDate() - i);
-                const entries = data[dateKey(d)] || [];
-                weekTotal += entries.length;
-            }
-            document.getElementById('statWeek').textContent = weekTotal;
-
-            // This month
-            let monthTotal = 0;
-            const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-            for (let d = new Date(firstOfMonth); d <= today; d.setDate(d.getDate() + 1)) {
-                const entries = data[dateKey(d)] || [];
-                monthTotal += entries.length;
-            }
-            document.getElementById('statMonth').textContent = monthTotal;
-
-            // All time total & average & best
-            const allDays = Object.keys(data).sort();
-            let total = 0;
-            let bestDay = Infinity;
-            allDays.forEach(k => {
-                const c = data[k].length;
-                total += c;
-                if (c < bestDay) bestDay = c;
-            });
-            document.getElementById('statTotal').textContent = total;
-            document.getElementById('statAvg').textContent = allDays.length > 0
-                ? (total / allDays.length).toFixed(1)
-                : '0';
-            document.getElementById('statBest').textContent = allDays.length > 0 ? bestDay : '0';
-
-            // Money
-            const pricePerCig = settings.price / settings.packSize;
-            const monthMoney = (monthTotal * pricePerCig).toFixed(2).replace('.', ',');
-            const totalMoney = (total * pricePerCig).toFixed(2).replace('.', ',');
-            document.getElementById('moneyMonth').textContent = monthMoney + ' \u20AC';
-            document.getElementById('moneyTotal').textContent = 'Gesamt: ' + totalMoney + ' \u20AC';
-
-            // Bar chart - last 14 days
-            const $barChart = document.getElementById('barChart');
-            $barChart.innerHTML = '';
-            const days = [];
-            for (let i = 13; i >= 0; i--) {
-                const d = new Date(today);
-                d.setDate(d.getDate() - i);
-                const k = dateKey(d);
-                const c = (data[k] || []).length;
-                days.push({ key: k, count: c, date: d });
-            }
-            const maxCount = Math.max(...days.map(d => d.count), 1);
-
-            days.forEach(day => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'bar-wrapper';
-                const val = document.createElement('div');
-                val.className = 'bar-value';
-                val.textContent = day.count || '';
-                const bar = document.createElement('div');
-                bar.className = 'bar';
-                bar.style.height = (day.count / maxCount * 130) + 'px';
-                const label = document.createElement('div');
-                label.className = 'bar-label';
-                label.textContent = WEEKDAYS[day.date.getDay()];
-                wrapper.appendChild(val);
-                wrapper.appendChild(bar);
-                wrapper.appendChild(label);
-                $barChart.appendChild(wrapper);
-            });
+        function scheduleMidnight() {
+            const now = new Date();
+            const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 5);
+            setTimeout(() => {
+                checkRollover();
+                scheduleMidnight();
+            }, midnight - now);
         }
 
-        // --- Settings ---
-        $goalInput.value = settings.goal;
-        $priceInput.value = settings.price.toFixed(2);
-        $packSizeInput.value = settings.packSize;
-
-        $goalInput.addEventListener('change', () => {
-            settings.goal = parseInt($goalInput.value) || 20;
-            saveSettings(settings);
-            updateTodayView();
-        });
-
-        $priceInput.addEventListener('change', () => {
-            settings.price = parseFloat($priceInput.value) || 8.00;
-            saveSettings(settings);
-        });
-
-        $packSizeInput.addEventListener('change', () => {
-            settings.packSize = parseInt($packSizeInput.value) || 20;
-            saveSettings(settings);
-        });
-
-        // Export CSV
-        document.getElementById('exportBtn').addEventListener('click', () => {
-            let csv = 'Datum,Anzahl,Uhrzeiten\n';
-            Object.keys(data).sort().forEach(key => {
-                const entries = data[key];
-                const times = entries.map(e => formatTime(e)).join('; ');
-                csv += key + ',' + entries.length + ',"' + times + '"\n';
-            });
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'smokelog_export.csv';
-            a.click();
-            URL.revokeObjectURL(url);
-        });
-
-        // Reset
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            if (confirm('Wirklich alle Daten l\u00f6schen? Das kann nicht r\u00fcckg\u00e4ngig gemacht werden!')) {
-                data = {};
-                saveData(data);
-                updateTodayView();
-                updateStats();
-            }
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) checkRollover();
         });
 
         // --- Init ---
-        updateHeaderDate();
-        updateTodayView();
+        renderAll();
+        scheduleMidnight();
 
-        // Auto-refresh at midnight
-        function msUntilMidnight() {
-            const now = new Date();
-            const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-            return midnight - now;
-        }
-        setTimeout(() => {
-            updateHeaderDate();
-            updateTodayView();
-        }, msUntilMidnight() + 1000);
-
-        // Register Service Worker
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js');
+            navigator.serviceWorker.register('sw.js').catch(() => {});
         }
     })();
     </script>
