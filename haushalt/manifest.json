@@ -1,11 +1,12 @@
 {
-  "name": "Smoke Log - Zigaretten Tracker",
-  "short_name": "Smoke Log",
-  "description": "Tracke deinen Zigarettenkonsum",
-  "start_url": "/",
+  "name": "Janas Haushalt-System",
+  "short_name": "Haushalt",
+  "description": "Klein anfangen. Jeden Tag. Reicht.",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#1a1a2e",
-  "theme_color": "#1a1a2e",
+  "background_color": "#fdf6ee",
+  "theme_color": "#5c3d1e",
   "orientation": "portrait",
   "icons": [
     {
